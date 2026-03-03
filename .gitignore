@@ -1,0 +1,19 @@
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+node_modules/
+.expo/
+.vs/
+.vscode/
+.DS_Store
+*.user
+*.suo
+
+# Ignore environment/secret files anywhere
+.env
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+
+# Ignore the uploads folder in the API
+LearningApp.API/uploads/
