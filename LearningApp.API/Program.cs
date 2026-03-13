@@ -21,6 +21,7 @@ builder.Services.AddScoped<ILessonService,     LessonService>();
 builder.Services.AddScoped<IQuizService,       QuizService>();
 builder.Services.AddScoped<IMaterialService,   MaterialService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<OtpStore>();          // shared in-memory OTP store
 builder.Services.AddScoped<EmailService>();         // email sender
 builder.Services.AddHttpClient(); // For MaterialsController proxy endpoint

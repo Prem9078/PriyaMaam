@@ -17,11 +17,13 @@ namespace LearningApp.API.Infrastructure.Services
     {
         private readonly AppDbContext _db;
         private readonly IConfiguration _config;
+        private readonly EmailService _email;
 
-        public AuthService(AppDbContext db, IConfiguration config)
+        public AuthService(AppDbContext db, IConfiguration config, EmailService email)
         {
-            _db = db;
+            _db     = db;
             _config = config;
+            _email  = email;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -41,6 +43,9 @@ namespace LearningApp.API.Infrastructure.Services
 
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
+
+            // Fire-and-forget welcome email
+            _ = _email.SendWelcomeAsync(user.Email, user.Name);
 
             return new AuthResponseDto
             {
@@ -120,6 +125,10 @@ namespace LearningApp.API.Infrastructure.Services
 
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             await _db.SaveChangesAsync();
+
+            // Fire-and-forget password changed confirmation email
+            _ = _email.SendPasswordChangedAsync(user.Email, user.Name);
+
             return true;
         }
 

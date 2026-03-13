@@ -9,9 +9,13 @@ namespace LearningApp.API.Application.Services
     {
         Task<List<QuizDto>> GetByLessonAsync(Guid lessonId);
         Task<QuizDto?> GetByIdAsync(Guid quizId);
+        Task<AdminQuizDto?> GetAdminByIdAsync(Guid quizId);
         Task<QuizDto> CreateAsync(CreateQuizDto dto);
+        Task<QuizDto> UpdateAsync(Guid quizId, UpdateQuizDto dto);
         Task<bool> DeleteAsync(Guid quizId);
         Task<QuizResultDto> SubmitAsync(Guid userId, QuizSubmitDto dto);
+        Task<List<QuizHistoryItemDto>> GetMyHistoryAsync(Guid userId);
+        Task<List<LeaderboardEntryDto>> GetLeaderboardAsync(Guid quizId);
     }
 }
 

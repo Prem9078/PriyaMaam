@@ -13,8 +13,13 @@ namespace LearningApp.API.Infrastructure.Services
     public class LessonService : ILessonService
     {
         private readonly AppDbContext _db;
+        private readonly INotificationService _notifications;
 
-        public LessonService(AppDbContext db) => _db = db;
+        public LessonService(AppDbContext db, INotificationService notifications)
+        {
+            _db = db;
+            _notifications = notifications;
+        }
 
         public async Task<List<LessonDto>> GetByCourseAsync(Guid courseId, Guid userId, bool isAdmin = false)
         {
@@ -57,6 +62,14 @@ namespace LearningApp.API.Infrastructure.Services
 
             _db.Lessons.Add(lesson);
             await _db.SaveChangesAsync();
+
+            // Notify enrolled students about the new lesson
+            var course = await _db.Courses.FindAsync(dto.CourseId);
+            _ = _notifications.SendToEnrolledStudentsAsync(
+                dto.CourseId,
+                "📖 New Lesson Added!",
+                $"'{lesson.Title}' is now available in '{course?.Title}'.",
+                new { screen = "LessonsScreen", courseId = dto.CourseId });
 
             return new LessonDto
             {

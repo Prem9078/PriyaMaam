@@ -14,11 +14,16 @@ namespace LearningApp.API.Infrastructure.Services
     {
         private readonly AppDbContext _db;
         private readonly ICloudinaryService _cloudinary;
+        private readonly INotificationService _notifications;
+        private readonly EmailService _email;
 
-        public CourseService(AppDbContext db, ICloudinaryService cloudinary)
+        public CourseService(AppDbContext db, ICloudinaryService cloudinary,
+            INotificationService notifications, EmailService email)
         {
-            _db = db;
-            _cloudinary = cloudinary;
+            _db            = db;
+            _cloudinary    = cloudinary;
+            _notifications = notifications;
+            _email         = email;
         }
 
         public async Task<List<CourseDto>> GetAllAsync(Guid? userId)
@@ -77,6 +82,12 @@ namespace LearningApp.API.Infrastructure.Services
                 thumbnailUrl = uploaded.SecureUrl;
             }
 
+            // Collect student emails BEFORE the async boundary
+            var studentEmails = await _db.Users
+                .Where(u => u.Role == "Student")
+                .Select(u => u.Email)
+                .ToListAsync();
+
             var course = new Course
             {
                 Title = dto.Title,
@@ -87,6 +98,15 @@ namespace LearningApp.API.Infrastructure.Services
             };
             _db.Courses.Add(course);
             await _db.SaveChangesAsync();
+
+            // Push notification to all students
+            _ = _notifications.SendToAllStudentsAsync(
+                "📚 New Course Available!",
+                $"'{course.Title}' just launched. Check it out!",
+                new { screen = "HomeScreen" });
+
+            // Bulk email to all students (fire-and-forget — emails already captured above)
+            _ = _email.SendNewCourseAsync(studentEmails, course.Title);
 
             return new CourseDto
             {
@@ -152,6 +172,21 @@ namespace LearningApp.API.Infrastructure.Services
 
             _db.Enrollments.Add(new Enrollment { UserId = userId, CourseId = courseId });
             await _db.SaveChangesAsync();
+
+            var course = await _db.Courses.FindAsync(courseId);
+
+            // Push notification to the enrolled student
+            _ = _notifications.SendToUserAsync(
+                userId,
+                "🎉 Enrollment Successful!",
+                $"You are now enrolled in '{course?.Title}'. Start learning!",
+                new { screen = "HomeScreen" });
+
+            // Enrollment confirmation email (fire-and-forget)
+            var enrolledUser = await _db.Users.FindAsync(userId);
+            if (enrolledUser != null && course != null)
+                _ = _email.SendEnrollmentConfirmAsync(enrolledUser.Email, enrolledUser.Name, course.Title);
+
             return true;
         }
 

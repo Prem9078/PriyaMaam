@@ -30,6 +30,11 @@ namespace LearningApp.API.WebAPI.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            // Fail early if the email is already registered
+            var alreadyExists = await _authService.EmailExistsAsync(dto.Email);
+            if (alreadyExists)
+                return Conflict(new { message = "An account with this email already exists. Please sign in or reset your password." });
+
             var code = _otpStore.Generate(dto.Email);
             await _emailService.SendOtpAsync(dto.Email, code);
 
@@ -63,8 +68,16 @@ namespace LearningApp.API.WebAPI.Controllers
             if (!emailVerified)
                 return BadRequest(new { message = "Email not verified. Please complete OTP verification first." });
 
-            var result = await _authService.RegisterAsync(dto);
-            return Ok(result);
+            try
+            {
+                var result = await _authService.RegisterAsync(dto);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Duplicate email (safety net in case send-otp check was bypassed)
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         /// <summary>Login and receive a JWT token.</summary>

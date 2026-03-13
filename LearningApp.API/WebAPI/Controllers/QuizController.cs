@@ -37,6 +37,32 @@ namespace LearningApp.API.WebAPI.Controllers
             return quiz is null ? NotFound() : Ok(quiz);
         }
 
+        /// <summary>Get a single quiz for the admin to edit (includes correct answers).</summary>
+        [HttpGet("admin/{quizId:guid}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminById(Guid quizId)
+        {
+            var quiz = await _quizService.GetAdminByIdAsync(quizId);
+            return quiz is null ? NotFound() : Ok(quiz);
+        }
+
+        /// <summary>Update an existing quiz and its questions (Admin only).</summary>
+        [HttpPut("{quizId:guid}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(Guid quizId, [FromBody] UpdateQuizDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                var quiz = await _quizService.UpdateAsync(quizId, dto);
+                return Ok(quiz);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
         /// <summary>Create a quiz with questions (Admin only).</summary>
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -63,6 +89,22 @@ namespace LearningApp.API.WebAPI.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var result = await _quizService.SubmitAsync(GetUserId(), dto);
             return Ok(result);
+        }
+
+        /// <summary>Get the current student's quiz attempt history.</summary>
+        [HttpGet("history")]
+        public async Task<IActionResult> MyHistory()
+        {
+            var history = await _quizService.GetMyHistoryAsync(GetUserId());
+            return Ok(history);
+        }
+
+        /// <summary>Get the top-10 leaderboard for a specific quiz.</summary>
+        [HttpGet("{quizId:guid}/leaderboard")]
+        public async Task<IActionResult> Leaderboard(Guid quizId)
+        {
+            var board = await _quizService.GetLeaderboardAsync(quizId);
+            return Ok(board);
         }
     }
 }

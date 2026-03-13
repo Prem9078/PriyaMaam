@@ -12,6 +12,7 @@ namespace LearningApp.API.Domain.Entities
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = "Student";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string? ExpoPushToken { get; set; }
 
         // Navigation
         public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
