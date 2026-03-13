@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { showAlert } from '../../components/AppAlert';
@@ -45,8 +46,13 @@ export default function LoginScreen({ navigation }) {
     };
 
     return (
-        <KeyboardAvoidingView style={s.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-            <ScrollView contentContainerStyle={s.inner} showsVerticalScrollIndicator={false}>
+        <View style={s.container}>
+            <KeyboardAwareScrollView
+                contentContainerStyle={s.inner}
+                showsVerticalScrollIndicator={false}
+                enableOnAndroid={true}
+                extraScrollHeight={20}
+            >
 
                 {/* Logo + App Name */}
                 <View style={s.brandRow}>
@@ -91,8 +97,8 @@ export default function LoginScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
 
-            </ScrollView>
-        </KeyboardAvoidingView>
+            </KeyboardAwareScrollView>
+        </View>
     );
 }
 

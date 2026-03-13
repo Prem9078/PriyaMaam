@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     View, Text, TouchableOpacity, StyleSheet,
-    ScrollView, Modal, TextInput, ActivityIndicator,
+    ScrollView, Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
@@ -82,7 +82,7 @@ function ChangePasswordModal({ visible, email, onClose }) {
 
     return (
         <Modal visible={visible} animationType="slide" transparent onRequestClose={() => { reset(); onClose(); }}>
-            <View style={s.modalOverlay}>
+            <KeyboardAvoidingView style={s.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <View style={s.modalCard}>
                     <View style={s.modalHeader}>
                         <Text style={s.modalTitle}>🔐 Change Password</Text>
@@ -142,7 +142,7 @@ function ChangePasswordModal({ visible, email, onClose }) {
                         </>
                     )}
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </Modal>
     );
 }

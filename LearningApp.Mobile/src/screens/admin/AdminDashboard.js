@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { getCourses } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { showAlert } from '../../components/AppAlert';
@@ -9,9 +10,9 @@ export default function AdminDashboard({ navigation }) {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         getCourses().then(r => setCourses(r.data)).finally(() => setLoading(false));
-    }, []);
+    }, []));
 
     const handleLogout = () =>
         showAlert('Logout', 'Are you sure?', [

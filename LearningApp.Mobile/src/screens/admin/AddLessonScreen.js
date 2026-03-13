@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
-    ScrollView, ActivityIndicator, Image,
+    ActivityIndicator, Image, Platform
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { createLesson } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
@@ -70,7 +71,11 @@ export default function AddLessonScreen({ route, navigation }) {
                 <View style={{ width: 50 }} />
             </View>
 
-            <ScrollView contentContainerStyle={{ padding: 20 }}>
+            <KeyboardAwareScrollView
+                contentContainerStyle={{ padding: 20 }}
+                enableOnAndroid={true}
+                extraScrollHeight={20}
+            >
                 <View style={s.info}>
                     <Text style={s.infoText}>📚 Course: {courseTitle}</Text>
                 </View>
@@ -112,7 +117,7 @@ export default function AddLessonScreen({ route, navigation }) {
                 <TouchableOpacity style={s.btn} onPress={handleCreate} disabled={loading}>
                     {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Add Lesson</Text>}
                 </TouchableOpacity>
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </View>
     );
 }

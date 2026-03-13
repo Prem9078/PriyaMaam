@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { getLessons } from '../../services/api';
 
 export default function ManageLessonsScreen({ route, navigation }) {
@@ -9,14 +10,9 @@ export default function ManageLessonsScreen({ route, navigation }) {
     const [lessons, setLessons] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchLessons = () => {
+    useFocusEffect(useCallback(() => {
         getLessons(courseId).then(r => setLessons(r.data)).finally(() => setLoading(false));
-    };
-
-    useEffect(() => {
-        const unsub = navigation.addListener('focus', fetchLessons);
-        return unsub;
-    }, [navigation]);
+    }, [courseId]));
 
     const renderLesson = ({ item, index }) => (
         <TouchableOpacity

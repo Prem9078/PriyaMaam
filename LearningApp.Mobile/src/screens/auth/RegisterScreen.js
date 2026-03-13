@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, Image,
-    StyleSheet, ActivityIndicator,
-    KeyboardAvoidingView, Platform, ScrollView,
+    StyleSheet, ActivityIndicator, Platform
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { sendOtp as sendOtpApi, verifyOtp as verifyOtpApi } from '../../services/api';
@@ -82,7 +82,26 @@ export default function RegisterScreen({ navigation }) {
             setStep(1);
             startResendTimer();
         } catch (e) {
-            showAlert('Error', e.response?.data?.message || 'Could not send OTP. Check your email.');
+            // 409 Conflict = email already registered
+            if (e.response?.status === 409) {
+                showAlert(
+                    'Email Already Registered',
+                    'An account with this email already exists.\n\nWhat would you like to do?',
+                    [
+                        {
+                            text: 'Sign In',
+                            onPress: () => navigation.navigate('Login'),
+                        },
+                        {
+                            text: 'Reset Password',
+                            onPress: () => navigation.navigate('ForgotPassword'),
+                        },
+                        { text: 'Cancel', style: 'cancel' },
+                    ]
+                );
+            } else {
+                showAlert('Error', e.response?.data?.message || 'Could not send OTP. Check your email.');
+            }
         } finally {
             setLoading(false);
         }
@@ -129,8 +148,13 @@ export default function RegisterScreen({ navigation }) {
     };
 
     return (
-        <KeyboardAvoidingView style={s.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-            <ScrollView contentContainerStyle={s.inner} showsVerticalScrollIndicator={false}>
+        <View style={s.container}>
+            <KeyboardAwareScrollView
+                contentContainerStyle={s.inner}
+                showsVerticalScrollIndicator={false}
+                enableOnAndroid={true}
+                extraScrollHeight={20}
+            >
 
                 {/* Logo + App Name */}
                 <View style={s.brandRow}>
@@ -219,8 +243,8 @@ export default function RegisterScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
 
-            </ScrollView>
-        </KeyboardAvoidingView>
+            </KeyboardAwareScrollView>
+        </View>
     );
 }
 

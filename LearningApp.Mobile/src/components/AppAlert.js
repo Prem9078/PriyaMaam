@@ -108,7 +108,11 @@ export function AppAlertHost() {
                     )}
 
                     {/* Buttons */}
-                    <View style={[s.btnRow, state.buttons.length === 1 && { justifyContent: 'center' }]}>
+                    <View style={[
+                        s.btnRow,
+                        state.buttons.length === 1 && { justifyContent: 'center' },
+                        state.buttons.length >= 3 && { flexDirection: 'column' },
+                    ]}>
                         {state.buttons.map((btn, i) => {
                             const isDestructive = btn.style === 'destructive';
                             const isCancel = btn.style === 'cancel';

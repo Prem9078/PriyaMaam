@@ -32,7 +32,12 @@ export default function QuizScreen({ route, navigation }) {
         setSubmitting(true);
         try {
             const res = await submitQuiz({ quizId: quiz.id, answers });
-            navigation.replace('Result', { result: res.data, lessonTitle });
+            navigation.replace('Result', {
+                result: res.data,
+                lessonTitle,
+                quizId: quiz.id,
+                quizTitle: quizTitle || lessonTitle,
+            });
         } catch (err) {
             showAlert('Error', err.response?.data?.message || 'Submission failed.');
         } finally {

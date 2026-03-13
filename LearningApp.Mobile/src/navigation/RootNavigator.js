@@ -1,5 +1,4 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ActivityIndicator, View } from 'react-native';
@@ -20,6 +19,8 @@ import LessonScreen from '../screens/student/LessonScreen';
 import QuizScreen from '../screens/student/QuizScreen';
 import ResultScreen from '../screens/student/ResultScreen';
 import ProfileScreen from '../screens/student/ProfileScreen';
+import QuizHistoryScreen from '../screens/student/QuizHistoryScreen';
+import LeaderboardScreen from '../screens/student/LeaderboardScreen';
 
 // Admin Screens
 import AdminDashboard from '../screens/admin/AdminDashboard';
@@ -30,6 +31,7 @@ import ManageLessonDetailScreen from '../screens/admin/ManageLessonDetailScreen'
 import AddLessonScreen from '../screens/admin/AddLessonScreen';
 import AddQuizScreen from '../screens/admin/AddQuizScreen';
 import EditCourseScreen from '../screens/admin/EditCourseScreen';
+import EditQuizScreen from '../screens/admin/EditQuizScreen';
 import PdfViewerScreen from '../screens/PdfViewerScreen';
 
 const Stack = createStackNavigator();
@@ -55,6 +57,7 @@ const StudentTabs = () => (
             tabBarIcon: ({ color, size }) => {
                 const icons = {
                     Home: 'home-outline',
+                    History: 'time-outline',
                     Profile: 'person-outline',
                 };
                 return <Ionicons name={icons[route.name] || 'ellipse-outline'} size={size} color={color} />;
@@ -62,10 +65,12 @@ const StudentTabs = () => (
         })}
     >
         <Tab.Screen name="Home" component={StudentStack} />
+        <Tab.Screen name="History" component={HistoryStack} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
 );
 
+// ─── Student Main Stack ───────────────────────────────────────────────────────
 const StudentStack = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="HomeMain" component={HomeScreen} />
@@ -74,7 +79,16 @@ const StudentStack = () => (
         <Stack.Screen name="Lesson" component={LessonScreen} />
         <Stack.Screen name="Quiz" component={QuizScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
         <Stack.Screen name="PdfViewer" component={PdfViewerScreen} />
+    </Stack.Navigator>
+);
+
+// ─── History Tab Stack ────────────────────────────────────────────────────────
+const HistoryStack = () => (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="QuizHistory" component={QuizHistoryScreen} />
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
     </Stack.Navigator>
 );
 
@@ -88,11 +102,11 @@ const AdminStack = () => (
         <Stack.Screen name="ManageLessonDetail" component={ManageLessonDetailScreen} />
         <Stack.Screen name="AddLesson" component={AddLessonScreen} />
         <Stack.Screen name="AddQuiz" component={AddQuizScreen} />
+        <Stack.Screen name="EditQuiz" component={EditQuizScreen} />
         <Stack.Screen name="EditCourse" component={EditCourseScreen} />
         <Stack.Screen name="PdfViewer" component={PdfViewerScreen} />
     </Stack.Navigator>
 );
-
 
 // ─── Root Navigator ───────────────────────────────────────────────────────────
 export default function RootNavigator() {
@@ -107,10 +121,10 @@ export default function RootNavigator() {
     }
 
     return (
-        <NavigationContainer>
+        <>
             {!user ? <AuthStack /> : null}
             {user?.role === 'Student' ? <StudentTabs /> : null}
             {user?.role === 'Admin' ? <AdminStack /> : null}
-        </NavigationContainer>
+        </>
     );
 }

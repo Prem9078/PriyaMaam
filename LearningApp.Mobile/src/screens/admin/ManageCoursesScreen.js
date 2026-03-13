@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View, Text, FlatList, TouchableOpacity, StyleSheet,
     ActivityIndicator, Image,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { getCourses, deleteCourse, toggleCourseFree } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
@@ -10,14 +11,9 @@ export default function ManageCoursesScreen({ navigation }) {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchCourses = () => {
+    useFocusEffect(useCallback(() => {
         getCourses().then(r => setCourses(r.data)).finally(() => setLoading(false));
-    };
-
-    useEffect(() => {
-        const unsub = navigation.addListener('focus', fetchCourses);
-        return unsub;
-    }, [navigation]);
+    }, []));
 
     const handleDelete = (id, title) => {
         showAlert('Delete Course', `Delete "${title}"?`, [

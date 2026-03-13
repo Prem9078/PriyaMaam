@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
     ActivityIndicator, Platform
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { createQuiz } from '../../services/api';
+import { getQuizAdmin, updateQuiz } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
 const EMPTY_QUESTION = () => ({
     questionText: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: 'A',
 });
 
-export default function AddQuizScreen({ route, navigation }) {
-    const { lessonId, lessonTitle } = route.params;
+export default function EditQuizScreen({ route, navigation }) {
+    const { quizId, lessonTitle } = route.params;
+
     const [quizTitle, setQuizTitle] = useState('');
-    const [questions, setQuestions] = useState([EMPTY_QUESTION()]);
-    const [loading, setLoading] = useState(false);
+    const [questions, setQuestions] = useState([]);
+    const [loadingData, setLoadingData] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        const fetchQuiz = async () => {
+            try {
+                const res = await getQuizAdmin(quizId);
+                setQuizTitle(res.data.title);
+                if (res.data.questions && res.data.questions.length > 0) {
+                    setQuestions(res.data.questions);
+                } else {
+                    setQuestions([EMPTY_QUESTION()]);
+                }
+            } catch (err) {
+                showAlert('Error', 'Could not load the quiz. It might have been deleted.');
+                navigation.goBack();
+            } finally {
+                setLoadingData(false);
+            }
+        };
+        fetchQuiz();
+    }, [quizId]);
 
     const updateQ = (idx, field, value) => {
         setQuestions(prev => prev.map((q, i) => i === idx ? { ...q, [field]: value } : q));
@@ -31,24 +53,32 @@ export default function AddQuizScreen({ route, navigation }) {
             if (!q.questionText || !q.optionA || !q.optionB || !q.optionC || !q.optionD)
                 return showAlert('Incomplete', 'Please fill all fields for every question.');
         }
-        setLoading(true);
+        setSaving(true);
         try {
-            await createQuiz({ lessonId, title: quizTitle, questions });
-            showAlert('✅ Quiz Created!', `${questions.length} questions added.`, [
+            await updateQuiz(quizId, { title: quizTitle, questions });
+            showAlert('✅ Updated!', `Quiz saved successfully.`, [
                 { text: 'OK', onPress: () => navigation.goBack() },
             ]);
         } catch (err) {
-            showAlert('Error', err.response?.data?.message || 'Failed to create quiz.');
+            showAlert('Error', err.response?.data?.message || 'Failed to update quiz.');
         } finally {
-            setLoading(false);
+            setSaving(false);
         }
     };
+
+    if (loadingData) {
+        return (
+            <View style={[s.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color="#6C63FF" />
+            </View>
+        );
+    }
 
     return (
         <View style={s.container}>
             <View style={s.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}><Text style={s.back}>← Back</Text></TouchableOpacity>
-                <Text style={s.headerTitle} numberOfLines={1}>Add Quiz</Text>
+                <Text style={s.headerTitle} numberOfLines={1}>Edit Quiz</Text>
                 <View style={{ width: 50 }} />
             </View>
             <KeyboardAwareScrollView
@@ -97,8 +127,8 @@ export default function AddQuizScreen({ route, navigation }) {
                     <Text style={s.addQBtnText}>+ Add Another Question</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={s.submitBtn} onPress={handleSubmit} disabled={loading}>
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.submitBtnText}>Save Quiz ({questions.length} Q)</Text>}
+                <TouchableOpacity style={s.submitBtn} onPress={handleSubmit} disabled={saving}>
+                    {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.submitBtnText}>Update Quiz ({questions.length} Q)</Text>}
                 </TouchableOpacity>
             </KeyboardAwareScrollView>
         </View>

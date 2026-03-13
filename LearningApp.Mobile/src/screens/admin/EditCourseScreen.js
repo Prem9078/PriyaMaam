@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
-    ScrollView, ActivityIndicator, Image, Switch,
+    ActivityIndicator, Image, Switch, Platform
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import { updateCourse } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
@@ -67,7 +68,12 @@ export default function EditCourseScreen({ route, navigation }) {
                 <View style={{ width: 50 }} />
             </View>
 
-            <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
+            <KeyboardAwareScrollView
+                contentContainerStyle={{ padding: 20 }}
+                showsVerticalScrollIndicator={false}
+                enableOnAndroid={true}
+                extraScrollHeight={20}
+            >
 
                 {/* Thumbnail */}
                 <Text style={s.label}>Thumbnail Image</Text>
@@ -141,7 +147,7 @@ export default function EditCourseScreen({ route, navigation }) {
                         : <Text style={s.btnText}>Save Changes</Text>
                     }
                 </TouchableOpacity>
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </View>
     );
 }

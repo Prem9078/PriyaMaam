@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
-    ScrollView, ActivityIndicator, Image,
+    ActivityIndicator, Image, Platform
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import { createCourse } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
@@ -57,7 +58,11 @@ export default function AddCourseScreen({ navigation }) {
                 <Text style={s.headerTitle}>Add Course</Text>
                 <View style={{ width: 50 }} />
             </View>
-            <ScrollView contentContainerStyle={{ padding: 20 }}>
+            <KeyboardAwareScrollView
+                contentContainerStyle={{ padding: 20 }}
+                enableOnAndroid={true}
+                extraScrollHeight={20}
+            >
                 <Text style={s.label}>Course Title *</Text>
                 <TextInput style={s.input} placeholder="e.g. Complete C# Course" value={title} onChangeText={setTitle} />
 
@@ -80,7 +85,7 @@ export default function AddCourseScreen({ navigation }) {
                 <TouchableOpacity style={s.btn} onPress={handleCreate} disabled={loading}>
                     {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Create Course</Text>}
                 </TouchableOpacity>
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </View>
     );
 }

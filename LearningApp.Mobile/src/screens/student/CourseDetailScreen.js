@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View, Text, TouchableOpacity, StyleSheet,
     Image, ScrollView, ActivityIndicator,
 } from 'react-native';
-import { enrollCourse } from '../../services/api';
+import { enrollCourse, getCourse } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
 export default function CourseDetailScreen({ route, navigation }) {
     const { course } = route.params;
     const [loading, setLoading] = useState(false);
-    const [enrolled, setEnrolled] = useState(course.isEnrolled);
+    const [enrolled, setEnrolled] = useState(course.isEnrolled ?? false);
+
+    // Fetch fresh enrollment status on mount to avoid stale nav-param data
+    useEffect(() => {
+        getCourse(course.id)
+            .then(res => setEnrolled(res.data.isEnrolled ?? false))
+            .catch(() => { }); // silently ignore — fallback to nav-param value
+    }, [course.id]);
 
     const handleEnroll = async () => {
         setLoading(true);
@@ -18,6 +25,11 @@ export default function CourseDetailScreen({ route, navigation }) {
             setEnrolled(true);
             showAlert('🎉 Enrolled!', `You are now enrolled in "${course.title}"`);
         } catch (err) {
+            // 409 = already enrolled — just update the UI silently
+            if (err.response?.status === 409) {
+                setEnrolled(true);
+                return;
+            }
             const msg = err.response?.data?.message || 'Enrollment failed.';
             showAlert('Error', msg);
         } finally {

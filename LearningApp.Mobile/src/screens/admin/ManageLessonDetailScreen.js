@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
-    ActivityIndicator, ScrollView, Dimensions,
+    ActivityIndicator, Dimensions, Platform
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useFocusEffect } from '@react-navigation/native';
 import * as DocumentPicker from 'expo-document-picker';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import { updateLesson, getMaterials, uploadMaterial, deleteMaterial, getQuizzes, deleteQuiz } from '../../services/api';
@@ -61,16 +63,12 @@ export default function ManageLessonDetailScreen({ route, navigation }) {
 
     useEffect(() => {
         fetchMaterials();
-        fetchQuizzes();
-    }, []);
+    }, [fetchMaterials]);
 
-    // Refresh when coming back from AddQuiz screen
-    useEffect(() => {
-        const unsub = navigation.addListener('focus', () => {
-            fetchQuizzes();
-        });
-        return unsub;
-    }, [navigation]);
+    // Refresh quizzes when coming back from AddQuiz screen
+    useFocusEffect(useCallback(() => {
+        fetchQuizzes();
+    }, [fetchQuizzes]));
 
     const handleSave = async () => {
         setSaving(true);
@@ -144,7 +142,11 @@ export default function ManageLessonDetailScreen({ route, navigation }) {
                 <View style={{ width: 50 }} />
             </View>
 
-            <ScrollView contentContainerStyle={{ padding: 16 }}>
+            <KeyboardAwareScrollView
+                contentContainerStyle={{ padding: 16 }}
+                enableOnAndroid={true}
+                extraScrollHeight={20}
+            >
                 <View style={s.infoCard}>
                     <Text style={s.infoCourse}>Course: {courseTitle}</Text>
                     <Text style={s.infoLesson}>Lesson {lesson.order}</Text>
@@ -214,6 +216,12 @@ export default function ManageLessonDetailScreen({ route, navigation }) {
                                 <View key={q.id} style={s.quizRow}>
                                     <Text style={s.quizRowTitle} numberOfLines={1}>🎯 {q.title}</Text>
                                     <Text style={s.quizCount}>{q.questions?.length || 0} Qs</Text>
+                                    <TouchableOpacity
+                                        style={{ marginRight: 12 }}
+                                        onPress={() => navigation.navigate('EditQuiz', { quizId: q.id, lessonTitle: title })}
+                                    >
+                                        <Text style={s.editText}>✏️</Text>
+                                    </TouchableOpacity>
                                     <TouchableOpacity onPress={() => handleDeleteQuiz(q.id, q.title)}>
                                         <Text style={s.deleteText}>✕</Text>
                                     </TouchableOpacity>
@@ -227,7 +235,7 @@ export default function ManageLessonDetailScreen({ route, navigation }) {
                         <Text style={s.quizBtnText}>+ Add New Quiz</Text>
                     </TouchableOpacity>
                 </View>
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </View>
     );
 }
@@ -261,6 +269,7 @@ const s = StyleSheet.create({
         borderRadius: 10, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: '#EEE'
     },
     fileName: { color: '#6C63FF', fontSize: 13, fontWeight: '600', flex: 1 },
+    editText: { fontSize: 16 },
     deleteText: { color: '#e74c3c', fontWeight: '700', fontSize: 18, paddingLeft: 8 },
     uploadBtn: {
         borderWidth: 2, borderColor: '#6C63FF', borderStyle: 'dashed',

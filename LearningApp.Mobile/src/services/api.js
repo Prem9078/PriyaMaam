@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://192.168.31.145:5005';
+const BASE_URL = 'https://priyamaam-production.up.railway.app';
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -137,9 +137,16 @@ export const deleteMaterial = (materialId) => api.delete(`/api/materials/${mater
 
 // ─── Quiz ─────────────────────────────────────────────────────────────────────
 export const getQuizzes = (lessonId) => api.get(`/api/quiz/${lessonId}`);
+export const getQuizAdmin = (quizId) => api.get(`/api/quiz/admin/${quizId}`);
+export const updateQuiz = (quizId, data) => api.put(`/api/quiz/${quizId}`, data);
 export const getQuizById = (quizId) => api.get(`/api/quiz/take/${quizId}`);
 export const createQuiz = (data) => api.post('/api/quiz', data);
 export const deleteQuiz = (quizId) => api.delete(`/api/quiz/${quizId}`);
 export const submitQuiz = (data) => api.post('/api/quiz/submit', data);
+export const getMyQuizHistory = () => api.get('/api/quiz/history');
+export const getLeaderboard = (quizId) => api.get(`/api/quiz/${quizId}/leaderboard`);
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+export const registerPushToken = (token) => api.post('/api/notifications/register-token', { token });
 
 export default api;

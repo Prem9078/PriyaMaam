@@ -10,6 +10,10 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     const clearSession = async () => {
+        // Tell the backend to remove the push token for this user
+        // so they don't receive notifications after logout (fire-and-forget)
+        try { await api.post('/api/notifications/clear-token'); } catch (_) { }
+
         await AsyncStorage.removeItem('token');
         await AsyncStorage.removeItem('user');
         setToken(null);

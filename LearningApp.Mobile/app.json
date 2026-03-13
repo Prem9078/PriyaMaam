@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LearningApp.Mobile",
-    "slug": "LearningApp.Mobile",
+    "slug": "learningapp-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,14 +20,24 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.prempandey.LearningApp.Mobile",
+      "googleServicesFile": "./google-services.json",
+      "enableProguardInReleaseBuilds": true,
+      "enableShrinkResourcesInReleaseBuilds": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-asset",
-      "expo-font"
-    ]
+      "expo-font",
+      "expo-notifications"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "67d3f98a-10b8-46f8-9b64-78dce5467a0f"
+      }
+    }
   }
 }
