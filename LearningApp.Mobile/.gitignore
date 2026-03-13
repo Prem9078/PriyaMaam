@@ -1,5 +1,7 @@
 node_modules/
 .expo/
+/android
+/ios
 dist/
 npm-debug.*
 *.jks
@@ -21,3 +23,7 @@ veda
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Firebase credentials (contains API keys — never commit!)
+google-services.json
+GoogleService-Info.plist
