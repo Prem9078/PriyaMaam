@@ -99,15 +99,13 @@ var app = builder.Build();
 // ─── Middleware Pipeline ──────────────────────────────────────────────────────
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-if (app.Environment.IsDevelopment())
+// Swagger enabled in all environments (Dev + Production / Railway)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "LearningApp API v1");
-        c.RoutePrefix = string.Empty; // Swagger at root
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LearningApp API v1");
+    c.RoutePrefix = string.Empty; // Swagger at root URL
+});
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
