@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "postinstall": "node fix-hermes.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.x",
@@ -30,7 +31,7 @@
     "react-native": "0.83.2",
     "react-native-gesture-handler": "~2.30.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
-    "react-native-reanimated": "~3.16.0",
+    "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
     "react-native-webview": "13.16.0",
