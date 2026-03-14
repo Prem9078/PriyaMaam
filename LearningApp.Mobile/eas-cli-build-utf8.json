@@ -1,0 +1,53 @@
+﻿{
+    "id":  "c68ee908-4fd5-4785-b920-b4fbf88ce126",
+    "status":  "ERRORED",
+    "platform":  "ANDROID",
+    "error":  {
+                  "errorCode":  "EAS_BUILD_UNKNOWN_GRADLE_ERROR",
+                  "message":  "Gradle build failed with unknown error. See logs for the \"Run gradlew\" phase for more information."
+              },
+    "artifacts":  {
+
+                  },
+    "fingerprint":  {
+                        "id":  "019ce639-fc19-7d5e-8fd7-f04b350d7fe2",
+                        "hash":  "3289171e22a6e3f7f27210b0979aa22a548f2fcd"
+                    },
+    "initiatingActor":  {
+                            "id":  "437da9ed-baf3-4557-a43d-e65803e6d487",
+                            "displayName":  "prempandey"
+                        },
+    "logFiles":  [
+                     "https://job-logs.eascdn.net/production/c68ee908-4fd5-4785-b920-b4fbf88ce126/1773390190055-e581a439-7e43-4b4e-bc85-5c49d5efd528.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256\u0026X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260313%2Fauto%2Fstorage%2Fgoog4_request\u0026X-Goog-Date=20260313T085526Z\u0026X-Goog-Expires=900\u0026X-Goog-SignedHeaders=host\u0026X-Goog-Signature=b072d4e504726eabfb1210118c4f826d1312bb57af9bff07cc990a6eca0456a5b1b07c015342fd31c53528630fb5e440caac80d8a50fe32994084546dcd85f744f6017498393be31f489502cbeb655f3c712854435ac34846b345253cec563dc1d1c144db8ad0f7f7243ec5345019816d87b2fa914dcbfbf09a49edb33878dc7f0c0ca76d8656923d5b03eeb7e9acc8f1f92e966990abfc5c66ea398e02d01d7212be65c5c7a83a197dbe802188df47c627c204730da5ed498fb56d1095cb7e6df70b2b06d39308f98c63ca7fc2c9d835032ed80a7ecb89ecf500d8da22cd6efcebe6efaf53f22b53e5445b33bb4add14a383253b2926853078eafb57563e9ff",
+                     "https://job-logs.eascdn.net/production/c68ee908-4fd5-4785-b920-b4fbf88ce126/1773390198023-142fc5b0-b946-4ead-9e99-f7b1bf978b0a.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256\u0026X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260313%2Fauto%2Fstorage%2Fgoog4_request\u0026X-Goog-Date=20260313T085526Z\u0026X-Goog-Expires=900\u0026X-Goog-SignedHeaders=host\u0026X-Goog-Signature=9031998aa57db789a811f0aa0fd532268655063ba02971e83e3dc429aaa17c7d707f8f34a8ce1177617c4f137de6f32044618f91fd119f1002979b50ddb8e04d6bec04e8714c049ed46d007e8d53a3fdd606f1b57b69a321c540754551e3a177501abba61462e657818ed9a018f99243370f9368f2425215172c4641b0de37f27cb0fec7f733577d01d2691bb2eaf277e7775b9e4bb9387dcefd3fcab19bb4442203b5a91c9411f2791ad0f0721b77ab675d5f94879bfad1b4389118170a59c5dc547258d8529f840173986b20216935684d9aa5de4646489ec502619be58c8bf10512a464e0cea93b2f795c5e35705dbc1ec70c384044f6e3d3c61f02b33857",
+                     "https://job-logs.eascdn.net/production/c68ee908-4fd5-4785-b920-b4fbf88ce126/1773390198243-0d4fe34a-1e39-4230-9479-394915535569.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256\u0026X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260313%2Fauto%2Fstorage%2Fgoog4_request\u0026X-Goog-Date=20260313T085526Z\u0026X-Goog-Expires=900\u0026X-Goog-SignedHeaders=host\u0026X-Goog-Signature=6ef0d8a87e416bf0ccc7c0607cb61c083b0164999983c055a3cae8a95eb524ebe7063d7df1dea1b9f726bb32e1a2714d98c61c718ef423088343d4b04487eeca8ca347de1447a88a583c8bf517f9a444a4faa4d75859fc1f63b2f29cd3ed4e8c13e14752d5554ae06a48999a5454865bfa320cb4ace9392ddd17d7c616975131fca2377ec2000a3ad3935b5b08bb81410f96b6695231e51c2aae3bf9fcf8cdeed01cb05c1c416bfe9402eea429a4234727236f65cab5255198b2239045a54791a8764bd16063dacc881c59abd9f525dbc418e9188750d96a73772a517753e9b12e494e755b4b5094dfe17b53c0f9a5f7ea7f80733c641c13239e0761a28a1df5",
+                     "https://job-logs.eascdn.net/production/c68ee908-4fd5-4785-b920-b4fbf88ce126/1773390198416-88178835-a396-487e-9f2b-788f9f871cac.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256\u0026X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260313%2Fauto%2Fstorage%2Fgoog4_request\u0026X-Goog-Date=20260313T085526Z\u0026X-Goog-Expires=900\u0026X-Goog-SignedHeaders=host\u0026X-Goog-Signature=bc11ee994a1dfacb2ef14da1aaedcecada32a0a17dc252ae9167c2570fc775ab278289cc0e3648c4841388c90b493847d38dff555ae17d3cc1df8936b7d046a98f63e376aebd964f3b0f88e4deb3ec341bc9fe76c835a33cd3cbe0e454f8bd70c2ef8a1edcf5c8f222c0381e0a694f97f6ee7d5843cf2e4a5b739db910b6dfc0c14bf7582ab0034a8ed660e81d1a6241fcb1b0e21705151285aa2010e12ebc6d5be392049a99143d5a6e7dfef5a2c7b37060d92d5c71d65bb6d9d54ea9fbe55af107bfeb2ffdac53e0cfff4353e3134eeeef166b124db575270f1278d8685b027ab6536b2faf6e86cd34ec33d6fb30cf37f753a5afa1e8def80e125bfc065703"
+                 ],
+    "project":  {
+                    "id":  "67d3f98a-10b8-46f8-9b64-78dce5467a0f",
+                    "name":  "learningapp-mobile",
+                    "slug":  "learningapp-mobile",
+                    "ownerAccount":  {
+                                         "id":  "d745dfd8-32aa-4cac-a78d-156f83446d89",
+                                         "name":  "prempandey"
+                                     }
+                },
+    "distribution":  "INTERNAL",
+    "buildProfile":  "preview",
+    "sdkVersion":  "55.0.0",
+    "appVersion":  "1.0.0",
+    "appBuildVersion":  "1",
+    "gitCommitHash":  "edd8235d9fbec44b81b155d2f5fc632e6e73714c",
+    "gitCommitMessage":  "fix: bundle error due to missing untracked files",
+    "priority":  "NORMAL",
+    "createdAt":  "2026-03-13T08:23:09.839Z",
+    "updatedAt":  "2026-03-13T08:26:00.400Z",
+    "completedAt":  "2026-03-13T08:25:47.570Z",
+    "expirationDate":  "2026-03-27T08:23:09.878Z",
+    "isForIosSimulator":  false,
+    "metrics":  {
+                    "buildWaitTime":  103,
+                    "buildQueueTime":  45662,
+                    "buildDuration":  111718
+                }
+}
