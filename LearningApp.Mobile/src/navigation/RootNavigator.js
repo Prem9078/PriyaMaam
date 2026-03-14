@@ -125,6 +125,7 @@ export default function RootNavigator() {
             {!user ? <AuthStack /> : null}
             {user?.role === 'Student' ? <StudentTabs /> : null}
             {user?.role === 'Admin' ? <AdminStack /> : null}
+            {user && user.role !== 'Student' && user.role !== 'Admin' ? <AuthStack /> : null}
         </>
     );
 }
