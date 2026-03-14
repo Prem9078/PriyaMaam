@@ -5,6 +5,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "jsEngine": "jsc",
+    "experiments": {
+      "newArchEnabled": false
+    },
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
