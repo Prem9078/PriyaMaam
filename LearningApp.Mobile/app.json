@@ -24,7 +24,7 @@
       },
       "package": "com.prempandey.LearningApp.Mobile",
       "googleServicesFile": "./google-services.json",
-      "enableProguardInReleaseBuilds": true,
+      "enableProguardInReleaseBuilds": false,
       "enableShrinkResourcesInReleaseBuilds": true
     },
     "web": {
