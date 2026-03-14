@@ -4,7 +4,7 @@
     "slug": "learningapp-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "jsEngine": "hermes",
+    "jsEngine": "jsc",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
