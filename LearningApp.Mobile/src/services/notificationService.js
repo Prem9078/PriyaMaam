@@ -1,17 +1,27 @@
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import api from './api';
 
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let Notifications;
+if (!isExpoGo) {
+    // Only require push notifications in standalone builds (APK/AAB)
+    // Expo Go removes push notification native modules causing a hard crash
+    Notifications = require('expo-notifications');
+}
+
 // ── How to display notification when app is in FOREGROUND ──────────────────
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-    }),
-});
+if (!isExpoGo && Notifications) {
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: true,
+        }),
+    });
+}
 
 /**
  * Ask permission, get Expo push token, and register it with the API.
@@ -19,6 +29,10 @@ Notifications.setNotificationHandler({
  * @returns {Promise<string|null>} The Expo push token, or null if failed.
  */
 export async function registerForPushNotifications() {
+    if (!Notifications) {
+        console.log('[Notifications] Skipped — module not available (Expo Go).');
+        return null;
+    }
     try {
         // Must be a real device — emulators can't receive push notifications
         if (!Device.isDevice) {
@@ -91,6 +105,8 @@ export async function registerForPushNotifications() {
  * @param {object} navigationRef - React Navigation ref (optional, for deep linking on tap)
  */
 export function setupNotificationListeners(navigationRef) {
+    if (!Notifications) return () => {};
+
     // Listener 1: notification received while app is OPEN (foreground)
     const receivedListener = Notifications.addNotificationReceivedListener((notification) => {
         console.log('[Notifications] Received in foreground:', notification.request.content.title);
