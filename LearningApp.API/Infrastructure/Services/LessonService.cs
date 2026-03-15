@@ -21,6 +21,20 @@ namespace LearningApp.API.Infrastructure.Services
             _notifications = notifications;
         }
 
+        public async Task<LessonDto?> GetByIdAsync(Guid id)
+        {
+            var lesson = await _db.Lessons.FindAsync(id);
+            if (lesson is null) return null;
+            return new LessonDto
+            {
+                Id = lesson.Id,
+                CourseId = lesson.CourseId,
+                Title = lesson.Title,
+                YouTubeVideoId = lesson.YouTubeVideoId,
+                Order = lesson.Order
+            };
+        }
+
         public async Task<List<LessonDto>> GetByCourseAsync(Guid courseId, Guid userId, bool isAdmin = false)
         {
             if (!isAdmin)
@@ -100,6 +114,16 @@ namespace LearningApp.API.Infrastructure.Services
                 YouTubeVideoId = lesson.YouTubeVideoId,
                 Order = lesson.Order
             };
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var lesson = await _db.Lessons.FindAsync(id);
+            if (lesson is null) return false;
+
+            _db.Lessons.Remove(lesson);
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

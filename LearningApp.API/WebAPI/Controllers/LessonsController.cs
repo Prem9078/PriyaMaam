@@ -30,6 +30,14 @@ namespace LearningApp.API.WebAPI.Controllers
             return Ok(lessons);
         }
 
+        /// <summary>Get a single lesson by its ID.</summary>
+        [HttpGet("single/{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var lesson = await _lessonService.GetByIdAsync(id);
+            return lesson is null ? NotFound() : Ok(lesson);
+        }
+
         /// <summary>Create a lesson (Admin only).</summary>
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -48,6 +56,15 @@ namespace LearningApp.API.WebAPI.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var lesson = await _lessonService.UpdateAsync(id, dto);
             return lesson is null ? NotFound() : Ok(lesson);
+        }
+
+        /// <summary>Delete a lesson (Admin only).</summary>
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var success = await _lessonService.DeleteAsync(id);
+            return success ? NoContent() : NotFound();
         }
     }
 }

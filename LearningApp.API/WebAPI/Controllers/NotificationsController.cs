@@ -46,10 +46,27 @@ namespace LearningApp.API.WebAPI.Controllers
             await _notificationService.ClearTokenAsync(GetUserId());
             return Ok(new { message = "Push token cleared." });
         }
+
+        [HttpPost("broadcast")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Broadcast([FromBody] BroadcastDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Title) || string.IsNullOrWhiteSpace(dto.Message))
+                return BadRequest("Title and message are required.");
+
+            await _notificationService.SendBroadcastAsync(dto.Title, dto.Message);
+            return Ok(new { message = "Broadcast sent successfully." });
+        }
     }
 
     public class RegisterTokenDto
     {
         public string Token { get; set; } = string.Empty;
+    }
+
+    public class BroadcastDto
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
     }
 }

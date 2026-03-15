@@ -15,6 +15,8 @@ namespace LearningApp.API.Infrastructure.Data
         public DbSet<Quiz> Quizzes => Set<Quiz>();
         public DbSet<Question> Questions => Set<Question>();
         public DbSet<Result> Results => Set<Result>();
+        public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
+        public DbSet<Comment> Comments => Set<Comment>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -102,6 +104,35 @@ namespace LearningApp.API.Infrastructure.Data
                     .WithMany(q => q.Results)
                     .HasForeignKey(r => r.QuizId)
                     .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // LessonProgress
+            modelBuilder.Entity<LessonProgress>(e =>
+            {
+                e.HasKey(lp => lp.Id);
+                e.HasIndex(lp => new { lp.UserId, lp.LessonId }).IsUnique();
+                e.HasOne(lp => lp.User)
+                    .WithMany(u => u.LessonProgresses)
+                    .HasForeignKey(lp => lp.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(lp => lp.Lesson)
+                    .WithMany(l => l.LessonProgresses)
+                    .HasForeignKey(lp => lp.LessonId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Comment
+            modelBuilder.Entity<Comment>(e =>
+            {
+                e.HasKey(c => c.Id);
+                e.HasOne(c => c.User)
+                    .WithMany(u => u.Comments)
+                    .HasForeignKey(c => c.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(c => c.Lesson)
+                    .WithMany(l => l.Comments)
+                    .HasForeignKey(c => c.LessonId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

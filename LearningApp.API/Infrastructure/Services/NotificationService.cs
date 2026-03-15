@@ -73,6 +73,17 @@ namespace LearningApp.API.Infrastructure.Services
             await SendAsync(tokens, title, body, data);
         }
 
+        public async Task SendBroadcastAsync(string title, string body, object? data = null)
+        {
+            var tokens = await _db.Users
+                .Where(u => u.ExpoPushToken != null)
+                .Select(u => u.ExpoPushToken!)
+                .ToListAsync();
+
+            if (tokens.Count == 0) return;
+            await SendAsync(tokens, title, body, data);
+        }
+
         // ── Private helper ───────────────────────────────────────────────────
         private async Task SendAsync(List<string> tokens, string title, string body, object? data)
         {

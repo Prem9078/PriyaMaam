@@ -106,7 +106,6 @@ export default function HomeScreen({ navigation }) {
                 <Text style={s.searchIcon}>🔍</Text>
             </View>
 
-            {/* ─── Section title ─── */}
             <Text style={s.sectionTitle}>All Courses ({filtered.length})</Text>
 
             <FlatList
@@ -114,6 +113,33 @@ export default function HomeScreen({ navigation }) {
                 keyExtractor={item => item.id}
                 renderItem={renderCourse}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+                ListHeaderComponent={
+                    // Find the first enrolled course with a last accessed lesson
+                    courses.find(c => c.isEnrolled && c.lastAccessedLessonId) ? (() => {
+                        const target = courses.find(c => c.isEnrolled && c.lastAccessedLessonId);
+                        return (
+                            <TouchableOpacity 
+                                style={s.resumeCard}
+                                onPress={() => navigation.navigate('Lesson', { 
+                                    lessonId: target.lastAccessedLessonId,
+                                    courseTitle: target.title 
+                                })}
+                            >
+                                <View style={s.resumeIconBox}><Text style={s.resumeIcon}>↺</Text></View>
+                                <View style={s.resumeTextCol}>
+                                    <Text style={s.resumeLabel}>Resume Learning</Text>
+                                    <Text style={s.resumeTitle} numberOfLines={1}>{target.title}</Text>
+                                    {target.progressPercentage > 0 && (
+                                        <View style={s.resumeProgressTrack}>
+                                            <View style={[s.resumeProgressFill, { width: `${target.progressPercentage}%`}]} />
+                                        </View>
+                                    )}
+                                </View>
+                                <Text style={s.resumeArrow}>›</Text>
+                            </TouchableOpacity>
+                        );
+                    })() : null
+                }
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -223,4 +249,22 @@ const s = StyleSheet.create({
     emptyBox: { alignItems: 'center', marginTop: 80 },
     emptyEmoji: { fontSize: 52, marginBottom: 12 },
     emptyText: { color: '#aaa', fontSize: 16 },
+
+    // Resume Learning Banner
+    resumeCard: {
+        backgroundColor: '#1a1a2e', borderRadius: 18, marginBottom: 20,
+        padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14,
+        elevation: 6, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 8,
+    },
+    resumeIconBox: { 
+        width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(108, 99, 255, 0.2)',
+        justifyContent: 'center', alignItems: 'center'
+    },
+    resumeIcon: { color: '#887BFF', fontSize: 22, fontWeight: '700' },
+    resumeTextCol: { flex: 1 },
+    resumeLabel: { color: '#888', fontSize: 12, fontWeight: '700', letterSpacing: 0.5, textTransform: 'uppercase' },
+    resumeTitle: { color: '#fff', fontSize: 15, fontWeight: '800', marginTop: 2, marginBottom: 8 },
+    resumeProgressTrack: { height: 4, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2 },
+    resumeProgressFill: { height: '100%', backgroundColor: '#00C853', borderRadius: 2 },
+    resumeArrow: { color: '#555', fontSize: 26, fontWeight: '300' },
 });

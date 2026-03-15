@@ -19,6 +19,7 @@ import LessonScreen from '../screens/student/LessonScreen';
 import QuizScreen from '../screens/student/QuizScreen';
 import ResultScreen from '../screens/student/ResultScreen';
 import ProfileScreen from '../screens/student/ProfileScreen';
+import OfflineMaterialsScreen from '../screens/student/OfflineMaterialsScreen';
 import QuizHistoryScreen from '../screens/student/QuizHistoryScreen';
 import LeaderboardScreen from '../screens/student/LeaderboardScreen';
 
@@ -32,6 +33,9 @@ import AddLessonScreen from '../screens/admin/AddLessonScreen';
 import AddQuizScreen from '../screens/admin/AddQuizScreen';
 import EditCourseScreen from '../screens/admin/EditCourseScreen';
 import EditQuizScreen from '../screens/admin/EditQuizScreen';
+import ManageStudentsScreen from '../screens/admin/ManageStudentsScreen';
+import StudentDetailScreen from '../screens/admin/StudentDetailScreen';
+import SendAnnouncementScreen from '../screens/admin/SendAnnouncementScreen';
 import PdfViewerScreen from '../screens/PdfViewerScreen';
 
 const Stack = createStackNavigator();
@@ -66,8 +70,16 @@ const StudentTabs = () => (
     >
         <Tab.Screen name="Home" component={StudentStack} />
         <Tab.Screen name="History" component={HistoryStack} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
+);
+
+// ─── Profile Stack ────────────────────────────────────────────────────────────
+const ProfileStack = () => (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+        <Stack.Screen name="OfflineMaterials" component={OfflineMaterialsScreen} />
+    </Stack.Navigator>
 );
 
 // ─── Student Main Stack ───────────────────────────────────────────────────────
@@ -104,6 +116,10 @@ const AdminStack = () => (
         <Stack.Screen name="AddQuiz" component={AddQuizScreen} />
         <Stack.Screen name="EditQuiz" component={EditQuizScreen} />
         <Stack.Screen name="EditCourse" component={EditCourseScreen} />
+        <Stack.Screen name="ManageStudents" component={ManageStudentsScreen} />
+        <Stack.Screen name="StudentDetail" component={StudentDetailScreen} />
+        <Stack.Screen name="SendAnnouncement" component={SendAnnouncementScreen} />
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
         <Stack.Screen name="PdfViewer" component={PdfViewerScreen} />
     </Stack.Navigator>
 );

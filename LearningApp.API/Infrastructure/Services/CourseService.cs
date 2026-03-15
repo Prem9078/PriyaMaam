@@ -35,7 +35,7 @@ namespace LearningApp.API.Infrastructure.Services
                     .ToListAsync()
                 : new List<Guid>();
 
-            return await _db.Courses
+            var courses = await _db.Courses
                 .OrderByDescending(c => c.CreatedAt)
                 .Select(c => new CourseDto
                 {
@@ -46,9 +46,44 @@ namespace LearningApp.API.Infrastructure.Services
                     Price = c.Price,
                     IsFree = c.IsFree,
                     CreatedAt = c.CreatedAt,
-                    IsEnrolled = enrolledIds.Contains(c.Id)
+                    IsEnrolled = true // We'll patch this below
                 })
                 .ToListAsync();
+
+            if (userId.HasValue)
+            {
+                var enrollments = await _db.Enrollments
+                    .Where(e => e.UserId == userId.Value)
+                    .ToListAsync();
+                
+                var userProgress = await _db.LessonProgresses
+                    .Where(lp => lp.UserId == userId.Value && lp.IsCompleted)
+                    .ToListAsync();
+
+                foreach(var c in courses)
+                {
+                    var enrollment = enrollments.FirstOrDefault(e => e.CourseId == c.Id);
+                    c.IsEnrolled = enrollment != null;
+                    if (c.IsEnrolled)
+                    {
+                        var totalLessons = await _db.Lessons.CountAsync(l => l.CourseId == c.Id);
+                        if (totalLessons > 0)
+                        {
+                            var lessonIds = await _db.Lessons.Where(l => l.CourseId == c.Id).Select(l => l.Id).ToListAsync();
+                            var completedLessons = userProgress.Count(lp => lessonIds.Contains(lp.LessonId));
+                            
+                            c.ProgressPercentage = (int)Math.Round((double)completedLessons / totalLessons * 100);
+                        }
+                        c.LastAccessedLessonId = enrollment?.LastAccessedLessonId;
+                    }
+                }
+            }
+            else
+            {
+                courses.ForEach(c => c.IsEnrolled = false);
+            }
+
+            return courses;
         }
 
         public async Task<CourseDto?> GetByIdAsync(Guid id, Guid? userId)
@@ -56,8 +91,21 @@ namespace LearningApp.API.Infrastructure.Services
             var course = await _db.Courses.FindAsync(id);
             if (course is null) return null;
 
-            var isEnrolled = userId.HasValue &&
-                await _db.Enrollments.AnyAsync(e => e.UserId == userId.Value && e.CourseId == id);
+            var enrollment = userId.HasValue ?
+                await _db.Enrollments.FirstOrDefaultAsync(e => e.UserId == userId.Value && e.CourseId == id) : null;
+
+            int progressPct = 0;
+            if (enrollment != null)
+            {
+                var totalLessons = await _db.Lessons.CountAsync(l => l.CourseId == id);
+                if (totalLessons > 0)
+                {
+                    var lessonIds = await _db.Lessons.Where(l => l.CourseId == id).Select(l => l.Id).ToListAsync();
+                    var completedCount = await _db.LessonProgresses
+                        .CountAsync(lp => lp.UserId == userId.Value && lp.IsCompleted && lessonIds.Contains(lp.LessonId));
+                    progressPct = (int)Math.Round((double)completedCount / totalLessons * 100);
+                }
+            }
 
             return new CourseDto
             {
@@ -68,7 +116,9 @@ namespace LearningApp.API.Infrastructure.Services
                 Price = course.Price,
                 IsFree = course.IsFree,
                 CreatedAt = course.CreatedAt,
-                IsEnrolled = isEnrolled
+                IsEnrolled = enrollment != null,
+                ProgressPercentage = progressPct,
+                LastAccessedLessonId = enrollment?.LastAccessedLessonId
             };
         }
 

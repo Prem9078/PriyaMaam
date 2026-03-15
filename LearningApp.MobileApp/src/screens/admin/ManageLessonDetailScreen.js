@@ -7,7 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useFocusEffect } from '@react-navigation/native';
 import * as DocumentPicker from 'expo-document-picker';
 import YoutubeIframe from 'react-native-youtube-iframe';
-import { updateLesson, getMaterials, uploadMaterial, deleteMaterial, getQuizzes, deleteQuiz } from '../../services/api';
+import { updateLesson, getMaterials, uploadMaterial, deleteMaterial, getQuizzes, deleteQuiz, deleteLesson } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
 /** Extract YouTube video ID from any URL format or plain ID */
@@ -80,6 +80,27 @@ export default function ManageLessonDetailScreen({ route, navigation }) {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleDeleteLesson = () => {
+        showAlert('Delete Lesson', `Are you sure you want to delete lesson "${lesson.title}"? This cannot be undone.`, [
+            { text: 'Cancel', style: 'cancel' },
+            {
+                text: 'Delete', style: 'destructive',
+                onPress: async () => {
+                    try {
+                        setSaving(true);
+                        await deleteLesson(lesson.id);
+                        showAlert('Deleted', 'Lesson was deleted.', [
+                            { text: 'OK', onPress: () => navigation.goBack() }
+                        ]);
+                    } catch (e) {
+                        setSaving(false);
+                        showAlert('Error', e.response?.data?.message || 'Failed to delete lesson.');
+                    }
+                }
+            }
+        ]);
     };
 
     const handleUpload = async () => {
@@ -182,7 +203,10 @@ export default function ManageLessonDetailScreen({ route, navigation }) {
                         <Text style={s.invalidHint}>⚠️ Could not detect a YouTube video ID</Text>
                     ) : null}
                     <TouchableOpacity style={s.saveBtn} onPress={handleSave} disabled={saving}>
-                        {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnText}>Save Changes</Text>}
+                        {saving ? <ActivityIndicator color="#6C63FF" /> : <Text style={s.saveBtnText}>Save Changes</Text>}
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[s.saveBtn, s.deleteLessonBtn]} onPress={handleDeleteLesson} disabled={saving}>
+                        <Text style={s.deleteLessonBtnText}>Delete Lesson</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -216,6 +240,12 @@ export default function ManageLessonDetailScreen({ route, navigation }) {
                                 <View key={q.id} style={s.quizRow}>
                                     <Text style={s.quizRowTitle} numberOfLines={1}>🎯 {q.title}</Text>
                                     <Text style={s.quizCount}>{q.questions?.length || 0} Qs</Text>
+                                    <TouchableOpacity 
+                                        style={{ marginRight: 12 }} 
+                                        onPress={() => navigation.navigate('Leaderboard', { quizId: q.id })}
+                                    >
+                                        <Text style={s.editText}>🏆</Text>
+                                    </TouchableOpacity>
                                     <TouchableOpacity
                                         style={{ marginRight: 12 }}
                                         onPress={() => navigation.navigate('EditQuiz', { quizId: q.id, lessonTitle: title })}
@@ -263,6 +293,8 @@ const s = StyleSheet.create({
     },
     saveBtn: { backgroundColor: '#6C63FF', borderRadius: 12, padding: 14, alignItems: 'center' },
     saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+    deleteLessonBtn: { backgroundColor: '#FFEBEB', marginTop: 12 },
+    deleteLessonBtnText: { color: '#e74c3c', fontWeight: '700', fontSize: 15 },
     emptyText: { color: '#999', fontSize: 13, textAlign: 'center', marginVertical: 8 },
     fileRow: {
         flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8F9FA',

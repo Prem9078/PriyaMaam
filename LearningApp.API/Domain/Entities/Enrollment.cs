@@ -8,6 +8,7 @@ namespace LearningApp.API.Domain.Entities
         public Guid UserId { get; set; }
         public Guid CourseId { get; set; }
         public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
+        public Guid? LastAccessedLessonId { get; set; }
 
         // Navigation
         public User User { get; set; } = null!;

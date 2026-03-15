@@ -15,6 +15,8 @@ namespace LearningApp.API.Domain.Entities
         public Course Course { get; set; } = null!;
         public ICollection<LessonMaterial> Materials { get; set; } = new List<LessonMaterial>();
         public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+        public ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }
 

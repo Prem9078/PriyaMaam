@@ -19,5 +19,8 @@ namespace LearningApp.API.Application.Services
 
         /// <summary>Send a push notification to all students enrolled in a specific course.</summary>
         Task SendToEnrolledStudentsAsync(Guid courseId, string title, string body, object? data = null);
+
+        /// <summary>Send a push notification broadcast to every user.</summary>
+        Task SendBroadcastAsync(string title, string body, object? data = null);
     }
 }

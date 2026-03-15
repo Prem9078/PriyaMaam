@@ -129,8 +129,10 @@ export const toggleCourseFree = (id) => api.patch(`/api/courses/${id}/toggle-fre
 
 // ─── Lessons ─────────────────────────────────────────────────────────────────
 export const getLessons = (courseId) => api.get(`/api/lessons/${courseId}`);
+export const getLessonById = (id) => api.get(`/api/lessons/single/${id}`);
 export const createLesson = (data) => api.post('/api/lessons', data);
 export const updateLesson = (id, data) => api.put(`/api/lessons/${id}`, data);
+export const deleteLesson = (id) => api.delete(`/api/lessons/${id}`);
 
 // ─── Lesson Materials ─────────────────────────────────────────────────────────
 export const getMaterials = (lessonId) => api.get(`/api/materials/${lessonId}`);
@@ -152,5 +154,18 @@ export const getLeaderboard = (quizId) => api.get(`/api/quiz/${quizId}/leaderboa
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 export const registerPushToken = (token) => api.post('/api/notifications/register-token', { token });
+export const sendBroadcast = (title, message) => api.post('/api/notifications/broadcast', { title, message });
+
+// ─── Admin Management ─────────────────────────────────────────────────────────
+export const getAdminStats = () => api.get('/api/admin/dashboard-stats');
+export const getStudents = () => api.get('/api/admin/students');
+export const getStudentEnrollments = (userId) => api.get(`/api/admin/students/${userId}/enrollments`);
+export const enrollStudent = (userId, courseId) => api.post(`/api/admin/students/${userId}/enroll/${courseId}`);
+export const revokeStudentEnrollment = (userId, courseId) => api.delete(`/api/admin/students/${userId}/enroll/${courseId}`);
+
+// ─── Student Learning Features ────────────────────────────────────────────────
+export const markLessonComplete = (lessonId) => api.post(`/api/learning/progress/${lessonId}`);
+export const getLessonComments = (lessonId) => api.get(`/api/learning/lessons/${lessonId}/comments`);
+export const postLessonComment = (lessonId, text) => api.post(`/api/learning/lessons/${lessonId}/comments`, { text });
 
 export default api;

@@ -15,6 +15,8 @@ namespace LearningApp.API.Application.DTOs
         public bool IsFree { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsEnrolled { get; set; }
+        public int ProgressPercentage { get; set; }
+        public Guid? LastAccessedLessonId { get; set; }
     }
 
     public class CreateCourseDto

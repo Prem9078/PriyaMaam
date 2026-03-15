@@ -148,7 +148,7 @@ function ChangePasswordModal({ visible, email, onClose }) {
 }
 
 // ─── Main Profile Screen ──────────────────────────────────────────────────────
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
     const { user, logout } = useAuth();
     const [changePwVisible, setChangePwVisible] = useState(false);
 
@@ -222,6 +222,20 @@ export default function ProfileScreen() {
                             <Text style={s.upgradeBtnText}>Upgrade</Text>
                         </TouchableOpacity>
                     )}
+                </View>
+
+                {/* ── Offline Materials ─────────────────────────────────────────────── */}
+                <Text style={s.sectionTitle}>Library</Text>
+                <View style={s.card}>
+                    <TouchableOpacity style={s.actionRow} onPress={() => navigation.navigate('OfflineMaterials')}>
+                        <View style={s.actionLeft}>
+                            <View style={[s.actionIcon, { backgroundColor: '#F0F9FF' }]}>
+                                <Ionicons name="document-text-outline" size={18} color="#0091EA" />
+                            </View>
+                            <Text style={s.actionText}>My Offline Materials</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={18} color="#ccc" />
+                    </TouchableOpacity>
                 </View>
 
                 {/* ── Actions ────────────────────────────────────────────── */}

@@ -10,11 +10,17 @@ export default function CourseDetailScreen({ route, navigation }) {
     const { course } = route.params;
     const [loading, setLoading] = useState(false);
     const [enrolled, setEnrolled] = useState(course.isEnrolled ?? false);
+    const [progress, setProgress] = useState(course.progressPercentage ?? 0);
+    const [lastAccessedLessonId, setLastAccessedLessonId] = useState(course.lastAccessedLessonId);
 
-    // Fetch fresh enrollment status on mount to avoid stale nav-param data
+    // Fetch fresh course dat on mount
     useEffect(() => {
         getCourse(course.id)
-            .then(res => setEnrolled(res.data.isEnrolled ?? false))
+            .then(res => {
+                setEnrolled(res.data.isEnrolled ?? false);
+                setProgress(res.data.progressPercentage ?? 0);
+                setLastAccessedLessonId(res.data.lastAccessedLessonId);
+            })
             .catch(() => { }); // silently ignore — fallback to nav-param value
     }, [course.id]);
 
@@ -62,10 +68,34 @@ export default function CourseDetailScreen({ route, navigation }) {
                 <Text style={styles.desc}>{course.description}</Text>
 
                 {enrolled ? (
-                    <TouchableOpacity style={styles.btnGo}
-                        onPress={() => navigation.navigate('Lessons', { courseId: course.id, courseTitle: course.title })}>
-                        <Text style={styles.btnText}>▶ Go to Lessons</Text>
-                    </TouchableOpacity>
+                    <View style={styles.enrolledContainer}>
+                        {/* Progress Bar */}
+                        <View style={styles.progressWrap}>
+                            <View style={styles.progressHeader}>
+                                <Text style={styles.progressLabel}>Course Progress</Text>
+                                <Text style={styles.progressVal}>{progress}%</Text>
+                            </View>
+                            <View style={styles.progressTrack}>
+                                <View style={[styles.progressFill, { width: `${progress}%` }]} />
+                            </View>
+                        </View>
+
+                        <TouchableOpacity style={styles.btnGo}
+                            onPress={() => navigation.navigate('Lessons', { courseId: course.id, courseTitle: course.title })}>
+                            <Text style={styles.btnText}>▶ Go to Lessons</Text>
+                        </TouchableOpacity>
+
+                        {/* If they have a last accessed lesson, show Resume button */}
+                        {lastAccessedLessonId ? (
+                             <TouchableOpacity style={styles.btnResume}
+                                 onPress={() => navigation.navigate('Lesson', { 
+                                     lessonId: lastAccessedLessonId, 
+                                     courseTitle: course.title 
+                                 })}>
+                                 <Text style={styles.btnTextResume}>↺ Resume Video</Text>
+                             </TouchableOpacity>
+                        ) : null}
+                    </View>
                 ) : (
                     <TouchableOpacity style={styles.btnEnroll} onPress={handleEnroll} disabled={loading}>
                         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Enroll Now</Text>}
@@ -89,6 +119,15 @@ const styles = StyleSheet.create({
     descLabel: { fontSize: 14, fontWeight: '700', color: '#555', marginBottom: 6 },
     desc: { fontSize: 14, color: '#555', lineHeight: 22, marginBottom: 28 },
     btnEnroll: { backgroundColor: '#6C63FF', borderRadius: 14, padding: 16, alignItems: 'center' },
+    enrolledContainer: { gap: 12 },
     btnGo: { backgroundColor: '#27ae60', borderRadius: 14, padding: 16, alignItems: 'center' },
+    btnResume: { backgroundColor: '#EEF0FF', borderRadius: 14, padding: 16, alignItems: 'center' },
     btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+    btnTextResume: { color: '#6C63FF', fontWeight: '800', fontSize: 16 },
+    progressWrap: { marginBottom: 16, backgroundColor: '#fff', padding: 16, borderRadius: 14, borderWidth: 1, borderColor: '#eee' },
+    progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+    progressLabel: { fontSize: 13, fontWeight: '700', color: '#555' },
+    progressVal: { fontSize: 13, fontWeight: '800', color: '#6C63FF' },
+    progressTrack: { height: 8, backgroundColor: '#E0E0E0', borderRadius: 4, overflow: 'hidden' },
+    progressFill: { height: '100%', backgroundColor: '#6C63FF', borderRadius: 4 },
 });
