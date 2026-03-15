@@ -100,13 +100,13 @@ namespace LearningApp.API.Infrastructure.Services
             await _db.SaveChangesAsync();
 
             // Push notification to all students
-            _ = _notifications.SendToAllStudentsAsync(
+            await _notifications.SendToAllStudentsAsync(
                 "📚 New Course Available!",
                 $"'{course.Title}' just launched. Check it out!",
                 new { screen = "HomeScreen" });
 
-            // Bulk email to all students (fire-and-forget — emails already captured above)
-            _ = _email.SendNewCourseAsync(studentEmails, course.Title);
+            // Bulk email to all students
+            await _email.SendNewCourseAsync(studentEmails, course.Title);
 
             return new CourseDto
             {
@@ -174,18 +174,20 @@ namespace LearningApp.API.Infrastructure.Services
             await _db.SaveChangesAsync();
 
             var course = await _db.Courses.FindAsync(courseId);
-
-            // Push notification to the enrolled student
-            _ = _notifications.SendToUserAsync(
-                userId,
-                "🎉 Enrollment Successful!",
-                $"You are now enrolled in '{course?.Title}'. Start learning!",
-                new { screen = "HomeScreen" });
-
-            // Enrollment confirmation email (fire-and-forget)
             var enrolledUser = await _db.Users.FindAsync(userId);
-            if (enrolledUser != null && course != null)
-                _ = _email.SendEnrollmentConfirmAsync(enrolledUser.Email, enrolledUser.Name, course.Title);
+
+            if (course != null && enrolledUser != null)
+            {
+                // Push notification to the enrolled student
+                await _notifications.SendToUserAsync(
+                    userId,
+                    "🎉 Enrollment Successful!",
+                    $"You are now enrolled in '{course.Title}'. Start learning!",
+                    new { screen = "HomeScreen" });
+
+                // Enrollment confirmation email
+                await _email.SendEnrollmentConfirmAsync(enrolledUser.Email, enrolledUser.Name, course.Title);
+            }
 
             return true;
         }

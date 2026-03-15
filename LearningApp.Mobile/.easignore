@@ -19,3 +19,7 @@ npm-debug.*
 .env.production.local
 google-services.json
 GoogleService-Info.plist
+
+# Exclude generated native directories so EAS runs prebuild server-side
+android/
+ios/

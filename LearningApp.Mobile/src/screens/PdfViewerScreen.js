@@ -1,7 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { usePreventScreenCapture } from 'expo-screen-capture';
+
+// Lazy-load expo-screen-capture to prevent native module crash in Expo Go
+function useSafePreventScreenCapture() {
+    useEffect(() => {
+        let sub;
+        try {
+            const SC = require('expo-screen-capture');
+            SC.activateKeepAwakeAsync?.();
+            sub = SC.addScreenshotListener?.(() => {});
+            SC.preventScreenCaptureAsync?.();
+        } catch (e) {
+            // Not available in Expo Go — silently skip
+        }
+        return () => {
+            try { sub?.remove?.(); } catch (_) {}
+        };
+    }, []);
+}
 
 export default function PdfViewerScreen({ route, navigation }) {
     const { secureUrl, fileName } = route.params;
@@ -9,7 +26,7 @@ export default function PdfViewerScreen({ route, navigation }) {
     const [error, setError] = useState(false);
 
     // Block screenshots and screen recording while viewing the document
-    usePreventScreenCapture();
+    useSafePreventScreenCapture();
 
     // Google Docs Viewer renders PDFs on both Android and iOS in a WebView
     const viewerUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(secureUrl)}`;

@@ -202,7 +202,7 @@ namespace LearningApp.API.Infrastructure.Services
                     .ToListAsync();
 
                 // Fire-and-forget notifications (No DbContext usage here)
-                _ = _notifications.SendToEnrolledStudentsAsync(
+                await _notifications.SendToEnrolledStudentsAsync(
                     lesson.CourseId,
                     "📝 New Quiz Ready!",
                     $"'{quiz.Title}' quiz is available in '{course?.Title}'.",
@@ -210,7 +210,7 @@ namespace LearningApp.API.Infrastructure.Services
 
                 if (enrolledEmails.Any())
                 {
-                    _ = _email.SendNewQuizAsync(enrolledEmails, lesson.Title, quiz.Title);
+                    await _email.SendNewQuizAsync(enrolledEmails, lesson.Title, quiz.Title);
                 }
             }
 
@@ -258,20 +258,20 @@ namespace LearningApp.API.Infrastructure.Services
             await _db.SaveChangesAsync();
 
             // Push notification to the student
-            _ = _notifications.SendToUserAsync(
+            await _notifications.SendToUserAsync(
                 userId,
                 "✅ Quiz Completed!",
                 $"You scored {score}/{quiz.Questions.Count} in '{quiz.Title}'. Well done!",
                 new { screen = "ResultScreen" });
 
-            // Quiz result email (fire-and-forget)
+            // Quiz result email
             var student = await _db.Users.FindAsync(userId);
             if (student != null)
             {
                 var pct = quiz.Questions.Count == 0
                     ? 0.0
                     : Math.Round((double)score / quiz.Questions.Count * 100, 1);
-                _ = _email.SendQuizResultAsync(student.Email, student.Name,
+                await _email.SendQuizResultAsync(student.Email, student.Name,
                     quiz.Title, score, quiz.Questions.Count, pct);
             }
 

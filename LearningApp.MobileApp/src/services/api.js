@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'https://priyamaam-production.up.railway.app';
-// const BASE_URL = 'http://192.168.31.145:5005';
+//const BASE_URL = 'https://priyamaam-production.up.railway.app';
+const BASE_URL = 'http://192.168.31.145:5005';
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -85,7 +85,10 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retried) {
+        // Skip 401 interceptor for login/register endpoints
+        const isAuthEndpoint = originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/register');
+
+        if (error.response?.status === 401 && !originalRequest._retried && !isAuthEndpoint) {
             originalRequest._retried = true;
             const currentToken = await AsyncStorage.getItem('token');
 

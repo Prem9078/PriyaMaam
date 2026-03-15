@@ -65,7 +65,7 @@ namespace LearningApp.API.Infrastructure.Services
 
             // Notify enrolled students about the new lesson
             var course = await _db.Courses.FindAsync(dto.CourseId);
-            _ = _notifications.SendToEnrolledStudentsAsync(
+            await _notifications.SendToEnrolledStudentsAsync(
                 dto.CourseId,
                 "📖 New Lesson Added!",
                 $"'{lesson.Title}' is now available in '{course?.Title}'.",

@@ -5,22 +5,20 @@ import api from './api';
 
 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
-let Notifications;
-if (!isExpoGo) {
-    // Only require push notifications in standalone builds (APK/AAB)
-    // Expo Go removes push notification native modules causing a hard crash
-    Notifications = require('expo-notifications');
-}
-
-// ── How to display notification when app is in FOREGROUND ──────────────────
-if (!isExpoGo && Notifications) {
-    Notifications.setNotificationHandler({
-        handleNotification: async () => ({
-            shouldShowAlert: true,
-            shouldPlaySound: true,
-            shouldSetBadge: true,
-        }),
-    });
+/**
+ * Lazily loads expo-notifications only on demand (not at module load time).
+ * This prevents Metro from initializing native modules at startup in Expo Go,
+ * which causes the 'Cannot find native module ExpoTopicSubscriptionModule' crash.
+ */
+function getNotifications() {
+    if (isExpoGo) return null;
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        return require('expo-notifications');
+    } catch (e) {
+        console.warn('[Notifications] expo-notifications not available:', e.message);
+        return null;
+    }
 }
 
 /**
@@ -29,10 +27,13 @@ if (!isExpoGo && Notifications) {
  * @returns {Promise<string|null>} The Expo push token, or null if failed.
  */
 export async function registerForPushNotifications() {
+    const Notifications = getNotifications();
+
     if (!Notifications) {
         console.log('[Notifications] Skipped — module not available (Expo Go).');
         return null;
     }
+
     try {
         // Must be a real device — emulators can't receive push notifications
         if (!Device.isDevice) {
@@ -105,7 +106,18 @@ export async function registerForPushNotifications() {
  * @param {object} navigationRef - React Navigation ref (optional, for deep linking on tap)
  */
 export function setupNotificationListeners(navigationRef) {
+    const Notifications = getNotifications();
+
     if (!Notifications) return () => {};
+
+    // Set how to display notification when app is in FOREGROUND
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: true,
+        }),
+    });
 
     // Listener 1: notification received while app is OPEN (foreground)
     const receivedListener = Notifications.addNotificationReceivedListener((notification) => {

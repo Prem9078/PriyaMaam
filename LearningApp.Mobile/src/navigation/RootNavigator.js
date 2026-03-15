@@ -120,12 +120,14 @@ export default function RootNavigator() {
         );
     }
 
-    return (
-        <>
-            {!user ? <AuthStack /> : null}
-            {user?.role === 'Student' ? <StudentTabs /> : null}
-            {user?.role === 'Admin' ? <AdminStack /> : null}
-            {user && user.role !== 'Student' && user.role !== 'Admin' ? <AuthStack /> : null}
-        </>
-    );
+    if (user?.role === 'Student') {
+        return <StudentTabs />;
+    }
+
+    if (user?.role === 'Admin') {
+        return <AdminStack />;
+    }
+
+    // Not logged in or unknown role → show Auth screens
+    return <AuthStack />;
 }
