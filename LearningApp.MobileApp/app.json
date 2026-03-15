@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Priya Ma'am",
+    "slug": "learningapp-mobile",
+    "owner": "priyamaam",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "jsEngine": "hermes",
+    "icon": "./assets/AppLogo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/AppLogo.png"
+      },
+      "package": "com.prempandey.LearningApp.Mobile",
+      "googleServicesFile": "./google-services.json",
+      "enableProguardInReleaseBuilds": false,
+      "enableShrinkResourcesInReleaseBuilds": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font",
+      "expo-notifications"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "deb825b0-faee-4eb4-a659-f43c70c10719"
+      }
+    }
+  }
+}

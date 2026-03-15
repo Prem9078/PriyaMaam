@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "668589802574",
+        "project_id": "learningapp-2f651",
+        "storage_bucket": "learningapp-2f651.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:668589802574:android:d9545822ee533f9e48ef1f",
+                "android_client_info": {
+                    "package_name": "com.prempandey.LearningApp.Mobile"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyA2sgUjl1yQ-_iUTlvNZbxs5ntJFJ3ZTto"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

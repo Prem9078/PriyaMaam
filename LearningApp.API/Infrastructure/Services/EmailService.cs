@@ -20,11 +20,12 @@ namespace LearningApp.API.Infrastructure.Services
             var port     = int.Parse(section["Port"]!);
             var from     = section["From"]!;
             var password = section["Password"]!;
+            var username = section["Username"] ?? from;
             var display  = section["DisplayName"] ?? "Priya Ma'am";
 
             using var client = new SmtpClient(host, port)
             {
-                Credentials = new NetworkCredential(from, password),
+                Credentials = new NetworkCredential(username, password),
                 EnableSsl   = true,
             };
 
