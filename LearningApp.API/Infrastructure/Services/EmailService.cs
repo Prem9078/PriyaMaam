@@ -12,32 +12,48 @@ namespace LearningApp.API.Infrastructure.Services
 
         public EmailService(IConfiguration config) => _config = config;
 
-        // ─── Shared SMTP sender ───────────────────────────────────────────────
+        // ─── Shared HTTP Sender via SendGrid API ──────────────────────────────
         private async Task SendAsync(string toEmail, string subject, string htmlBody)
         {
-            var section  = _config.GetSection("Email");
-            var host     = section["Host"]!;
-            var port     = int.Parse(section["Port"]!);
-            var from     = section["From"]!;
-            var password = section["Password"]!;
-            var username = section["Username"] ?? from;
-            var display  = section["DisplayName"] ?? "Priya Ma'am";
+            var section = _config.GetSection("Email");
+            var apiKey = section["Password"]!; // Assuming SendGrid API Key is stored here
+            var from = section["From"]!;
+            var display = section["DisplayName"] ?? "Priya Ma'am";
 
-            using var client = new SmtpClient(host, port)
+            // If not SendGrid (e.g., local testing), fallback could be added here
+            // But for production on Railway with SendGrid, we use the Web API
+            
+            using var client = new System.Net.Http.HttpClient();
+            client.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+
+            var payload = new
             {
-                Credentials = new NetworkCredential(username, password),
-                EnableSsl   = true,
+                personalizations = new[]
+                {
+                    new
+                    {
+                        to = new[] { new { email = toEmail } },
+                        subject = subject
+                    }
+                },
+                from = new { email = from, name = display },
+                content = new[]
+                {
+                    new { type = "text/html", value = htmlBody }
+                }
             };
 
-            var message = new MailMessage
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            var content = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("https://api.sendgrid.com/v3/mail/send", content);
+            
+            if (!response.IsSuccessStatusCode)
             {
-                From       = new MailAddress(from, display),
-                Subject    = subject,
-                Body       = htmlBody,
-                IsBodyHtml = true,
-            };
-            message.To.Add(toEmail);
-            await client.SendMailAsync(message);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                throw new System.Exception($"Failed to send email via SendGrid API. Status: {response.StatusCode}. Details: {responseBody}");
+            }
         }
 
         private static string Wrap(string content) => $@"
