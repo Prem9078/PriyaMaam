@@ -1,0 +1,19 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+D:\Projects\LearningApp\LearningApp.API\WebAPI\Controllers\AuthController.cs(187,42): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread. [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+D:\Projects\LearningApp\LearningApp.API\Infrastructure\Services\CertificateGeneratorService.cs(25,80): error CS0117: 'Fonts' does not contain a definition for 'Helvetica' [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+D:\Projects\LearningApp\LearningApp.API\Infrastructure\Services\CertificateGeneratorService.cs(25,48): warning CS0618: 'TextStyleExtensions.Fallback(TextStyle, TextStyle?)' is obsolete: 'This setting is not supported since the 2024.3 version. Please use the FontFamilyFallback method or rely on the new automated fallback mechanism.' [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+D:\Projects\LearningApp\LearningApp.API\Infrastructure\Services\CourseService.cs(105,56): warning CS8629: Nullable value type may be null. [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+
+Build FAILED.
+
+D:\Projects\LearningApp\LearningApp.API\WebAPI\Controllers\AuthController.cs(187,42): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread. [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+D:\Projects\LearningApp\LearningApp.API\Infrastructure\Services\CertificateGeneratorService.cs(25,48): warning CS0618: 'TextStyleExtensions.Fallback(TextStyle, TextStyle?)' is obsolete: 'This setting is not supported since the 2024.3 version. Please use the FontFamilyFallback method or rely on the new automated fallback mechanism.' [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+D:\Projects\LearningApp\LearningApp.API\Infrastructure\Services\CourseService.cs(105,56): warning CS8629: Nullable value type may be null. [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+D:\Projects\LearningApp\LearningApp.API\Infrastructure\Services\CertificateGeneratorService.cs(25,80): error CS0117: 'Fonts' does not contain a definition for 'Helvetica' [D:\Projects\LearningApp\LearningApp.API\LearningApp.API.csproj]
+    3 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:04.13
+
+Workload updates are available. Run `dotnet workload list` for more information.

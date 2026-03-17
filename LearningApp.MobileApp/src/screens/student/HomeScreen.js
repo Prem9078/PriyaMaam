@@ -3,8 +3,9 @@ import {
     View, Text, FlatList, TouchableOpacity, StyleSheet,
     Image, ActivityIndicator, RefreshControl, TextInput, StatusBar,
 } from 'react-native';
-import { getCourses } from '../../services/api';
+import { getCourses, getNotifications } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen({ navigation }) {
     const { user } = useAuth();
@@ -12,6 +13,7 @@ export default function HomeScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const fetchCourses = useCallback(async () => {
         try {
@@ -25,7 +27,28 @@ export default function HomeScreen({ navigation }) {
         }
     }, []);
 
-    useEffect(() => { fetchCourses(); }, []);
+    const fetchNotifications = async () => {
+        try {
+            const res = await getNotifications();
+            const unread = res.data.filter(n => !n.isRead).length;
+            setUnreadCount(unread);
+        } catch (e) {
+            console.log('Fetch notifications error:', e);
+        }
+    };
+
+    useEffect(() => { 
+        fetchCourses(); 
+        fetchNotifications();
+    }, []);
+
+    // Refresh notifications when screen comes into focus
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchNotifications();
+        });
+        return unsubscribe;
+    }, [navigation]);
 
     const filtered = courses.filter(c =>
         c.title.toLowerCase().includes(search.toLowerCase())
@@ -92,6 +115,10 @@ export default function HomeScreen({ navigation }) {
                     <Text style={s.appName}>Priya Ma'am</Text>
                     <Text style={s.greeting}>Welcome back, {user?.name?.split(' ')[0]} 👋</Text>
                 </View>
+                <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={s.bellBtn}>
+                    <Ionicons name="notifications-outline" size={24} color="#fff" />
+                    {unreadCount > 0 && <View style={s.bellBadge} />}
+                </TouchableOpacity>
             </View>
 
             {/* ─── Search ─── */}
@@ -114,9 +141,9 @@ export default function HomeScreen({ navigation }) {
                 renderItem={renderCourse}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
                 ListHeaderComponent={
-                    // Find the first enrolled course with a last accessed lesson
-                    courses.find(c => c.isEnrolled && c.lastAccessedLessonId) ? (() => {
-                        const target = courses.find(c => c.isEnrolled && c.lastAccessedLessonId);
+                    // Find the first enrolled course with a last accessed lesson that is NOT 100% complete
+                    courses.find(c => c.isEnrolled && c.lastAccessedLessonId && c.progressPercentage < 100) ? (() => {
+                        const target = courses.find(c => c.isEnrolled && c.lastAccessedLessonId && c.progressPercentage < 100);
                         return (
                             <TouchableOpacity 
                                 style={s.resumeCard}
@@ -182,6 +209,16 @@ const s = StyleSheet.create({
     },
     greeting: {
         fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 3,
+    },
+    bellBtn: {
+        position: 'relative',
+        padding: 4,
+    },
+    bellBadge: {
+        position: 'absolute', top: 4, right: 6,
+        width: 10, height: 10, borderRadius: 5,
+        backgroundColor: '#FF3B30',
+        borderWidth: 2, borderColor: PURPLE
     },
 
     // Search

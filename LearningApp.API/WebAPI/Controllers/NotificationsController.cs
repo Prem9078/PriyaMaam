@@ -21,10 +21,8 @@ namespace LearningApp.API.WebAPI.Controllers
             Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
                        ?? User.FindFirstValue("sub")!);
 
-        /// <summary>
-        /// Register or update the Expo push token for the currently authenticated user.
-        /// Called from the mobile app after login.
-        /// </summary>
+        // ── Expo Push Token ──────────────────────────────────────────────────
+
         [HttpPost("register-token")]
         public async Task<IActionResult> RegisterToken([FromBody] RegisterTokenDto dto)
         {
@@ -35,11 +33,6 @@ namespace LearningApp.API.WebAPI.Controllers
             return Ok(new { message = "Push token registered successfully." });
         }
 
-        /// <summary>
-        /// Clear the Expo push token when a user logs out.
-        /// Prevents another user logging in on the same device from receiving notifications
-        /// meant for the previous user.
-        /// </summary>
         [HttpPost("clear-token")]
         public async Task<IActionResult> ClearToken()
         {
@@ -57,6 +50,32 @@ namespace LearningApp.API.WebAPI.Controllers
             await _notificationService.SendBroadcastAsync(dto.Title, dto.Message);
             return Ok(new { message = "Broadcast sent successfully." });
         }
+
+        // ── In-App Notifications ─────────────────────────────────────────────
+
+        /// <summary>Get all in-app notifications for the logged-in user.</summary>
+        [HttpGet]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var notifications = await _notificationService.GetNotificationsAsync(GetUserId());
+            return Ok(notifications);
+        }
+
+        /// <summary>Mark a single notification as read.</summary>
+        [HttpPut("{id:guid}/read")]
+        public async Task<IActionResult> MarkRead(Guid id)
+        {
+            await _notificationService.MarkReadAsync(id, GetUserId());
+            return Ok(new { message = "Marked as read." });
+        }
+
+        /// <summary>Mark all notifications as read for the logged-in user.</summary>
+        [HttpPut("read-all")]
+        public async Task<IActionResult> MarkAllRead()
+        {
+            await _notificationService.MarkAllReadAsync(GetUserId());
+            return Ok(new { message = "All notifications marked as read." });
+        }
     }
 
     public class RegisterTokenDto
@@ -66,7 +85,7 @@ namespace LearningApp.API.WebAPI.Controllers
 
     public class BroadcastDto
     {
-        public string Title { get; set; } = string.Empty;
+        public string Title   { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
     }
 }

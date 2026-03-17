@@ -17,6 +17,8 @@ namespace LearningApp.API.Infrastructure.Data
         public DbSet<Result> Results => Set<Result>();
         public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
         public DbSet<Comment> Comments => Set<Comment>();
+        public DbSet<Certificate> Certificates => Set<Certificate>();
+        public DbSet<Notification> Notifications => Set<Notification>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -132,6 +134,31 @@ namespace LearningApp.API.Infrastructure.Data
                 e.HasOne(c => c.Lesson)
                     .WithMany(l => l.Comments)
                     .HasForeignKey(c => c.LessonId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Certificate
+            modelBuilder.Entity<Certificate>(e =>
+            {
+                e.HasKey(c => c.Id);
+                e.HasIndex(c => new { c.UserId, c.CourseId }).IsUnique(); // one cert per course per user
+                e.HasOne(c => c.User)
+                    .WithMany(u => u.Certificates)
+                    .HasForeignKey(c => c.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(c => c.Course)
+                    .WithMany()
+                    .HasForeignKey(c => c.CourseId)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // Notification
+            modelBuilder.Entity<Notification>(e =>
+            {
+                e.HasKey(n => n.Id);
+                e.HasOne(n => n.User)
+                    .WithMany(u => u.Notifications)
+                    .HasForeignKey(n => n.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

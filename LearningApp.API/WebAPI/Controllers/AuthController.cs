@@ -5,6 +5,8 @@ using LearningApp.API.Application.DTOs;
 using LearningApp.API.Application.Services;
 using LearningApp.API.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LearningApp.API.WebAPI.Controllers
@@ -16,12 +18,14 @@ namespace LearningApp.API.WebAPI.Controllers
         private readonly IAuthService _authService;
         private readonly OtpStore     _otpStore;
         private readonly EmailService _emailService;
+        private readonly IWebHostEnvironment _env;
 
-        public AuthController(IAuthService authService, OtpStore otpStore, EmailService emailService)
+        public AuthController(IAuthService authService, OtpStore otpStore, EmailService emailService, IWebHostEnvironment env)
         {
             _authService  = authService;
             _otpStore     = otpStore;
             _emailService = emailService;
+            _env          = env;
         }
 
         /// <summary>Step 1 of registration: send OTP to the email address.</summary>
@@ -205,6 +209,35 @@ namespace LearningApp.API.WebAPI.Controllers
 
             await _authService.ResetPasswordAsync(user.Email, dto.NewPassword);
             return Ok(new { message = "Password changed successfully." });
+        }
+
+        // ─── Profile & Avatar (authenticated) ─────────────────────────────────
+
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            if (!Guid.TryParse(userIdStr, out var userId)) return Unauthorized();
+
+            var result = await _authService.UpdateProfileAsync(userId, dto);
+            return Ok(result);
+        }
+
+        [HttpPost("avatar")]
+        [Authorize]
+        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest(new { message = "No file uploaded." });
+
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            if (!Guid.TryParse(userIdStr, out var userId)) return Unauthorized();
+
+            var avatarUrl = await _authService.UploadAvatarAsync(userId, file);
+            return Ok(new { avatarUrl });
         }
     }
 }

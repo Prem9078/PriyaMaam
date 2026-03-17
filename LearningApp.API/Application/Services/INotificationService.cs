@@ -1,26 +1,24 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using LearningApp.API.Domain.Entities;
 
 namespace LearningApp.API.Application.Services
 {
     public interface INotificationService
     {
-        /// <summary>Save or update the Expo push token for a user.</summary>
+        // ── Expo Push (existing) ────────────────────────────────────────────
         Task RegisterTokenAsync(Guid userId, string token);
-
-        /// <summary>Clear the Expo push token for a user (call on logout).</summary>
         Task ClearTokenAsync(Guid userId);
-
-        /// <summary>Send a push notification to a single user by their userId.</summary>
         Task SendToUserAsync(Guid userId, string title, string body, object? data = null);
-
-        /// <summary>Send a push notification to all students who have tokens.</summary>
         Task SendToAllStudentsAsync(string title, string body, object? data = null);
-
-        /// <summary>Send a push notification to all students enrolled in a specific course.</summary>
         Task SendToEnrolledStudentsAsync(Guid courseId, string title, string body, object? data = null);
-
-        /// <summary>Send a push notification broadcast to every user.</summary>
         Task SendBroadcastAsync(string title, string body, object? data = null);
+
+        // ── In-App Notifications ────────────────────────────────────────────
+        Task CreateNotificationAsync(Guid userId, string title, string message, string type = "general");
+        Task<List<Notification>> GetNotificationsAsync(Guid userId);
+        Task MarkReadAsync(Guid notificationId, Guid userId);
+        Task MarkAllReadAsync(Guid userId);
     }
 }

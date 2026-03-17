@@ -1,97 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from 'react-native';
-import { WebView } from 'react-native-webview';
-import * as FileSystem from 'expo-file-system';
-
-// Lazy-load expo-screen-capture to prevent native module crash in Expo Go
-function useSafePreventScreenCapture() {
-    useEffect(() => {
-        let sub;
-        try {
-            const SC = require('expo-screen-capture');
-            SC.activateKeepAwakeAsync?.();
-            sub = SC.addScreenshotListener?.(() => {});
-            SC.preventScreenCaptureAsync?.();
-        } catch (e) {
-            // Not available in Expo Go — silently skip
-        }
-        return () => {
-            try { sub?.remove?.(); } catch (_) {}
-        };
-    }, []);
-}
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Linking } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function PdfViewerScreen({ route, navigation }) {
-    const { secureUrl, fileName } = route.params;
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    // The previous implementation used WebView, but it was unreliable.
+    // We now just use Linking to delegate to the system browser/pdf viewer.
+    // params: { url, title } or legacy { secureUrl, fileName }
     
-    // Offline State
-    const [isOffline, setIsOffline] = useState(false);
-    const [localUri, setLocalUri] = useState('');
-    const [downloading, setDownloading] = useState(false);
-
-    // Block screenshots and screen recording while viewing the document
-    useSafePreventScreenCapture();
-
-    // Fix filename to aviod directory traversal or invalid characters
-    const encodedFileName = encodeURIComponent(fileName.replace(/[<>:"/\\|?*]+/g, '_')) + '.pdf';
-    const fileUri = `${FileSystem.documentDirectory}${encodedFileName}`;
+    const url = route.params?.url || route.params?.secureUrl;
+    const title = route.params?.title || route.params?.fileName || 'Document';
 
     useEffect(() => {
-        checkLocalFile();
-    }, []);
+        if (url) {
+            // Automatically prompt download/view in default browser on mount
+            Linking.openURL(url).catch(err => {
+                console.error("Failed to open URL:", err);
+            });
+        }
+    }, [url]);
 
-    const checkLocalFile = async () => {
-        try {
-            const info = await FileSystem.getInfoAsync(fileUri);
-            if (info.exists) {
-                setIsOffline(true);
-                setLocalUri(info.uri);
-                setLoading(false); // Skip webview loading entirely
-            }
-        } catch (e) {
-            console.log('Error checking local file', e);
+    const handleDownloadFormat = () => {
+        if (url) {
+            Linking.openURL(url);
         }
     };
-
-    const downloadFile = async () => {
-        setDownloading(true);
-        try {
-            const result = await FileSystem.downloadAsync(secureUrl, fileUri);
-            setIsOffline(true);
-            setLocalUri(result.uri);
-        } catch (e) {
-            console.log('Download error', e);
-            alert('Failed to download file');
-        } finally {
-            setDownloading(false);
-            setLoading(false);
-        }
-    };
-
-    const openOfflineFile = async () => {
-        try {
-            if (Platform.OS === 'android') {
-                const IntentLauncher = require('expo-intent-launcher');
-                const cUri = await FileSystem.getContentUriAsync(localUri);
-                await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-                    data: cUri,
-                    flags: 1,
-                    type: 'application/pdf'
-                });
-            } else {
-                const Sharing = require('expo-sharing');
-                await Sharing.shareAsync(localUri);
-            }
-        } catch (e) {
-            console.log('Error opening file natively:', e);
-            alert('Could not open the file natively. It may require a PDF reader app.');
-        }
-    };
-
-    // Google Docs Viewer renders PDFs online
-    const viewerUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(secureUrl)}`;
 
     return (
         <View style={s.container}>
@@ -99,91 +31,52 @@ export default function PdfViewerScreen({ route, navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={s.backHitbox}>
                     <Text style={s.back}>← Back</Text>
                 </TouchableOpacity>
-                
-                <Text style={s.headerTitle} numberOfLines={1}>{fileName}</Text>
-                
-                <View style={s.rightHitbox}>
-                    {!isOffline ? (
-                        <TouchableOpacity onPress={downloadFile} disabled={downloading}>
-                            {downloading ? (
-                                <ActivityIndicator color="#fff" size="small" />
-                            ) : (
-                                <Text style={s.saveOfflineBtn}>Save</Text>
-                            )}
-                        </TouchableOpacity>
-                    ) : (
-                        <Text style={s.savedText}>Saved ✓</Text>
-                    )}
-                </View>
+                <Text style={s.headerTitle} numberOfLines={1}>{title}</Text>
+                <View style={{ width: 60 }} />
             </View>
 
-            {loading && !error && !isOffline && (
-                <View style={s.loadingOverlay}>
-                    <ActivityIndicator size="large" color="#6C63FF" />
-                    <Text style={s.loadingText}>Loading document...</Text>
-                </View>
-            )}
-
-            {isOffline ? (
-                <View style={s.offlineBox}>
-                    <Text style={s.offlineIcon}>📄</Text>
-                    <Text style={s.offlineTitle}>Available Offline</Text>
-                    <Text style={s.offlineSub}>This document is saved to your device cache.</Text>
-                    <TouchableOpacity style={s.openBtn} onPress={openOfflineFile}>
-                        <Text style={s.openText}>Open Document Native Viewer</Text>
-                    </TouchableOpacity>
-                </View>
-            ) : error ? (
-                <View style={s.errorBox}>
-                    <Text style={s.errorIcon}>😕</Text>
-                    <Text style={s.errorTitle}>Could not load preview</Text>
-                    <Text style={s.errorSub}>Google Docs Viewer may be temporarily unavailable.</Text>
-                    <TouchableOpacity style={s.retryBtn} onPress={() => { setError(false); setLoading(true); }}>
-                        <Text style={s.retryText}>Retry</Text>
-                    </TouchableOpacity>
-                </View>
-            ) : (
-                <WebView
-                    source={{ uri: viewerUrl }}
-                    style={{ flex: 1 }}
-                    onLoadEnd={() => setLoading(false)}
-                    onError={() => { setLoading(false); setError(true); }}
-                />
-            )}
+            <View style={s.content}>
+                <Ionicons name="document-text" size={80} color="#6C63FF" style={{ marginBottom: 20 }} />
+                <Text style={s.title}>Opening your document...</Text>
+                <Text style={s.sub}>
+                    If you aren't automatically redirected, tap the button below to view or download the PDF securely in your browser.
+                </Text>
+                
+                <TouchableOpacity style={s.btn} onPress={handleDownloadFormat}>
+                    <Ionicons name="download-outline" size={20} color="#fff" style={{ marginRight: 8 }} />
+                    <Text style={s.btnText}>Download / View PDF</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
 
 const s = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: { flex: 1, backgroundColor: '#F0F2FF' },
     header: {
         backgroundColor: '#6C63FF', paddingTop: 52, paddingBottom: 16, paddingHorizontal: 16,
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
     },
     backHitbox: { width: 60 },
-    rightHitbox: { width: 60, alignItems: 'flex-end' },
     back: { color: '#fff', fontSize: 16, fontWeight: '600' },
-    headerTitle: { color: '#fff', fontSize: 14, fontWeight: '700', flex: 1, textAlign: 'center' },
-    saveOfflineBtn: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    savedText: { color: '#C8E6C9', fontSize: 14, fontWeight: '700' },
-    
-    loadingOverlay: {
-        ...StyleSheet.absoluteFillObject, backgroundColor: '#fff',
-        justifyContent: 'center', alignItems: 'center', zIndex: 10
+    headerTitle: { color: '#fff', fontSize: 16, fontWeight: '700', flex: 1, textAlign: 'center' },
+    content: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 32,
     },
-    loadingText: { marginTop: 12, color: '#6C63FF', fontSize: 14 },
-    
-    offlineBox: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, backgroundColor: '#F9F9FB' },
-    offlineIcon: { fontSize: 64, marginBottom: 16 },
-    offlineTitle: { fontSize: 20, fontWeight: '800', color: '#1a1a2e', marginBottom: 8 },
-    offlineSub: { fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 28 },
-    openBtn: { backgroundColor: '#6C63FF', borderRadius: 14, paddingHorizontal: 24, paddingVertical: 14 },
-    openText: { color: '#fff', fontWeight: '800', fontSize: 15 },
-
-    errorBox: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-    errorIcon: { fontSize: 48, marginBottom: 12 },
-    errorTitle: { fontSize: 18, fontWeight: '700', color: '#1a1a2e', marginBottom: 8 },
-    errorSub: { fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 24 },
-    retryBtn: { backgroundColor: '#6C63FF', borderRadius: 12, paddingHorizontal: 32, paddingVertical: 12 },
-    retryText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+    title: { fontSize: 22, fontWeight: '800', color: '#1a1a2e', marginBottom: 12, textAlign: 'center' },
+    sub: { fontSize: 15, color: '#666', textAlign: 'center', lineHeight: 22, marginBottom: 32 },
+    btn: {
+        backgroundColor: '#6C63FF',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 32,
+        borderRadius: 12,
+        elevation: 2,
+        shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }
+    },
+    btnText: { color: '#fff', fontSize: 16, fontWeight: '700' }
 });

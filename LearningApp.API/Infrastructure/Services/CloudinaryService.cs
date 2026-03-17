@@ -84,6 +84,35 @@ namespace LearningApp.API.Infrastructure.Services
             };
         }
 
+        public async Task<CloudinaryUploadResult> UploadPdfStreamAsync(System.IO.Stream stream, string fileName)
+        {
+            if (stream == null || stream.Length == 0)
+                throw new ArgumentException("No valid stream provided.");
+
+            var uploadParams = new RawUploadParams
+            {
+                File = new FileDescription(fileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) ? fileName : $"{fileName}.pdf", stream),
+                Folder = "learningapp/certificates",
+                UseFilename = true,
+                UniqueFilename = true,
+                AccessControl = new List<AccessControlRule>
+                {
+                    new AccessControlRule { AccessType = AccessType.Anonymous }
+                }
+            };
+
+            var result = await _cloudinary.UploadAsync(uploadParams);
+
+            if (result.Error != null)
+                throw new Exception($"Cloudinary certificate upload failed: {result.Error.Message}");
+
+            return new CloudinaryUploadResult
+            {
+                PublicId = result.PublicId,
+                SecureUrl = result.SecureUrl.ToString()
+            };
+        }
+
         public async Task<bool> DeleteFileAsync(string publicId)
         {
             var deleteParams = new DeletionParams(publicId)

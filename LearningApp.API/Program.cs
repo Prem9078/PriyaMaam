@@ -22,6 +22,7 @@ builder.Services.AddScoped<IQuizService,       QuizService>();
 builder.Services.AddScoped<IMaterialService,   MaterialService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ICertificateGeneratorService, CertificateGeneratorService>();
 builder.Services.AddSingleton<OtpStore>();          // shared in-memory OTP store
 builder.Services.AddScoped<EmailService>();         // email sender
 builder.Services.AddHttpClient(); // For MaterialsController proxy endpoint
@@ -49,6 +50,28 @@ builder.Services.AddAuthentication(options =>
         ValidAudience            = jwtSettings["Audience"],
         IssuerSigningKey         = new SymmetricSecurityKey(key),
         ClockSkew                = TimeSpan.Zero
+    };
+    
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+            var userIdStr = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                         ?? context.Principal?.FindFirst("sub")?.Value;
+
+            if (Guid.TryParse(userIdStr, out var userId))
+            {
+                var user = await db.Users.FindAsync(userId);
+                var tokenSessionId = context.Principal?.FindFirst("sessionId")?.Value;
+
+                // Reject if user deleted, or if the database session doesn't match the token's session
+                if (user == null || user.SessionId?.ToString() != tokenSessionId)
+                {
+                    context.Fail("Unauthorized: Session is invalid or has been expired due to login on another device.");
+                }
+            }
+        }
     };
 });
 

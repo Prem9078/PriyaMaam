@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //const BASE_URL = 'https://priyamaam-production.up.railway.app';
-const BASE_URL = 'http://192.168.31.145:5005';
+export const BASE_URL = 'http://192.168.31.145:5005';
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -113,6 +113,10 @@ export const register = (data) => api.post('/api/auth/register', data);
 export const login = (data) => api.post('/api/auth/login', data);
 export const sendOtp = (email) => api.post('/api/auth/send-otp', { email });
 export const verifyOtp = (email, otp) => api.post('/api/auth/verify-otp', { email, otp });
+export const updateProfile = (data) => api.put('/api/auth/profile', data);
+export const uploadAvatar = (formData) => api.post('/api/auth/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+});
 
 // ─── Courses ──────────────────────────────────────────────────────────────────
 export const getCourses = () => api.get('/api/courses');
@@ -155,6 +159,12 @@ export const getLeaderboard = (quizId) => api.get(`/api/quiz/${quizId}/leaderboa
 // ─── Notifications ────────────────────────────────────────────────────────────
 export const registerPushToken = (token) => api.post('/api/notifications/register-token', { token });
 export const sendBroadcast = (title, message) => api.post('/api/notifications/broadcast', { title, message });
+export const getNotifications = () => api.get('/api/notifications');
+export const markNotificationRead = (id) => api.put(`/api/notifications/${id}/read`);
+export const markAllNotificationsRead = () => api.put('/api/notifications/read-all');
+
+// ─── Certificates ─────────────────────────────────────────────────────────────
+export const getCertificates = () => api.get('/api/certificates');
 
 // ─── Admin Management ─────────────────────────────────────────────────────────
 export const getAdminStats = () => api.get('/api/admin/dashboard-stats');

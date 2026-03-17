@@ -36,6 +36,7 @@ namespace LearningApp.API.Application.DTOs
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
+        public string? AvatarUrl { get; set; }
     }
 
     public class UserDto
@@ -45,6 +46,7 @@ namespace LearningApp.API.Application.DTOs
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
+        public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 

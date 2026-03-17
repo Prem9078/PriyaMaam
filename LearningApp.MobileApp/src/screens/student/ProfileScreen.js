@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
-    View, Text, TouchableOpacity, StyleSheet,
+    View, Text, TouchableOpacity, StyleSheet, Image,
     ScrollView, Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { BASE_URL } from '../../services/api';
 import api from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
@@ -180,9 +181,13 @@ export default function ProfileScreen({ navigation }) {
             <View style={s.header}>
                 {/* Avatar */}
                 <View style={s.avatarRing}>
-                    <View style={s.avatar}>
-                        <Text style={s.avatarText}>{user?.name?.[0]?.toUpperCase()}</Text>
-                    </View>
+                    {user?.avatarUrl ? (
+                         <Image source={{ uri: user.avatarUrl.startsWith('http') ? user.avatarUrl : `${BASE_URL}${user.avatarUrl}` }} style={s.avatarImage} />
+                    ) : (
+                        <View style={s.avatar}>
+                            <Text style={s.avatarText}>{user?.name?.[0]?.toUpperCase()}</Text>
+                        </View>
+                    )}
                 </View>
                 <Text style={s.name}>{user?.name}</Text>
                 <Text style={s.emailSub}>{user?.email}</Text>
@@ -197,7 +202,12 @@ export default function ProfileScreen({ navigation }) {
             <View style={s.body}>
 
                 {/* ── Account Info ───────────────────────────────────────── */}
-                <Text style={s.sectionTitle}>Account Details</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, marginTop: 4 }}>
+                    <Text style={[s.sectionTitle, { marginBottom: 0, marginTop: 0 }]}>Account Details</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+                        <Text style={s.editLink}>Edit Profile</Text>
+                    </TouchableOpacity>
+                </View>
                 <View style={s.card}>
                     <InfoRow icon="person-outline" label="Full Name" value={user?.name} />
                     <View style={s.divider} />
@@ -224,15 +234,15 @@ export default function ProfileScreen({ navigation }) {
                     )}
                 </View>
 
-                {/* ── Offline Materials ─────────────────────────────────────────────── */}
+                {/* ── Certificates ─────────────────────────────────────────────── */}
                 <Text style={s.sectionTitle}>Library</Text>
                 <View style={s.card}>
-                    <TouchableOpacity style={s.actionRow} onPress={() => navigation.navigate('OfflineMaterials')}>
+                    <TouchableOpacity style={s.actionRow} onPress={() => navigation.navigate('Certificates')}>
                         <View style={s.actionLeft}>
-                            <View style={[s.actionIcon, { backgroundColor: '#F0F9FF' }]}>
-                                <Ionicons name="document-text-outline" size={18} color="#0091EA" />
+                            <View style={[s.actionIcon, { backgroundColor: '#FFF4E5' }]}>
+                                <Ionicons name="ribbon-outline" size={18} color="#FF9800" />
                             </View>
-                            <Text style={s.actionText}>My Offline Materials</Text>
+                            <Text style={s.actionText}>My Certificates</Text>
                         </View>
                         <Ionicons name="chevron-forward" size={18} color="#ccc" />
                     </TouchableOpacity>
@@ -288,6 +298,9 @@ const s = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.25)',
         justifyContent: 'center', alignItems: 'center',
     },
+    avatarImage: {
+        width: 84, height: 84, borderRadius: 42,
+    },
     avatarText: { fontSize: 36, fontWeight: '900', color: '#fff' },
     name: { fontSize: 22, fontWeight: '900', color: '#fff', marginBottom: 4 },
     emailSub: { fontSize: 13, color: 'rgba(255,255,255,0.75)', marginBottom: 14 },
@@ -302,6 +315,7 @@ const s = StyleSheet.create({
     // Body
     body: { padding: 20 },
     sectionTitle: { fontSize: 12, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, marginTop: 4 },
+    editLink: { fontSize: 12, color: PURPLE, fontWeight: '700' },
 
     // Card
     card: {

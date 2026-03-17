@@ -202,5 +202,22 @@ namespace LearningApp.API.Infrastructure.Services
 
             return SendAsync(toEmail, "Password Changed — Priya Ma'am", body);
         }
+        // ─── 8: Certificate Delivery ───────────────────────────────────────────────────
+        public Task SendCertificateAsync(string toEmail, string name, string courseTitle, string pdfUrl)
+        {
+            var body = Wrap($@"
+<h3 style=""color:#1a1a2e;margin-top:0"">Congratulations, {name}! 🎓🏆</h3>
+<p style=""color:#444;line-height:1.6"">You have successfully completed 100% of the lessons in:</p>
+<div style=""background:#F0EFFF;border-left:4px solid #4B42D6;border-radius:8px;padding:14px 18px;margin:16px 0"">
+  <strong style=""color:#4B42D6;font-size:16px"">{courseTitle}</strong>
+</div>
+<p style=""color:#444;line-height:1.6"">We have generated your official verified certificate to recognize your achievement.</p>
+<div style=""text-align:center;margin:30px 0"">
+  <a href=""{pdfUrl}"" style=""background:#4B42D6;color:#FFF;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:700;display:inline-block"">View & Download Certificate</a>
+</div>
+<p style=""color:#888;font-size:13px"">You can also view all your earned certificates within the Mobile App at any time!</p>");
+
+            return SendAsync(toEmail, $"Your Certificate: {courseTitle} — Priya Ma'am", body);
+        }
     }
 }

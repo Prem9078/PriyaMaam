@@ -63,7 +63,11 @@ export default function CourseDetailScreen({ route, navigation }) {
 
             <View style={styles.body}>
                 <Text style={styles.title}>{course.title}</Text>
-                <Text style={styles.price}>₹{course.price.toFixed(0)}</Text>
+                {course.isFree ? (
+                    <Text style={[styles.price, { color: '#00C853' }]}>Free</Text>
+                ) : (
+                    <Text style={styles.price}>₹{course.price.toFixed(0)}</Text>
+                )}
                 <Text style={styles.descLabel}>About this course</Text>
                 <Text style={styles.desc}>{course.description}</Text>
 
@@ -79,6 +83,12 @@ export default function CourseDetailScreen({ route, navigation }) {
                                 <View style={[styles.progressFill, { width: `${progress}%` }]} />
                             </View>
                         </View>
+
+                        {progress === 100 && (
+                            <TouchableOpacity style={styles.btnCer} onPress={() => navigation.navigate('Certificates')}>
+                                <Text style={styles.btnCerText}>🏆 View Certificate</Text>
+                            </TouchableOpacity>
+                        )}
 
                         <TouchableOpacity style={styles.btnGo}
                             onPress={() => navigation.navigate('Lessons', { courseId: course.id, courseTitle: course.title })}>
@@ -121,8 +131,10 @@ const styles = StyleSheet.create({
     btnEnroll: { backgroundColor: '#6C63FF', borderRadius: 14, padding: 16, alignItems: 'center' },
     enrolledContainer: { gap: 12 },
     btnGo: { backgroundColor: '#27ae60', borderRadius: 14, padding: 16, alignItems: 'center' },
+    btnCer: { backgroundColor: '#FFD700', borderRadius: 14, padding: 16, alignItems: 'center', marginBottom: 2 },
     btnResume: { backgroundColor: '#EEF0FF', borderRadius: 14, padding: 16, alignItems: 'center' },
     btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+    btnCerText: { color: '#8B6508', fontWeight: '800', fontSize: 16 },
     btnTextResume: { color: '#6C63FF', fontWeight: '800', fontSize: 16 },
     progressWrap: { marginBottom: 16, backgroundColor: '#fff', padding: 16, borderRadius: 14, borderWidth: 1, borderColor: '#eee' },
     progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },

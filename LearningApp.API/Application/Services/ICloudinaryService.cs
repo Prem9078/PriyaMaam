@@ -13,6 +13,7 @@ namespace LearningApp.API.Application.Services
     {
         Task<CloudinaryUploadResult> UploadImageAsync(IFormFile file);
         Task<CloudinaryUploadResult> UploadPdfAsync(IFormFile file);
+        Task<CloudinaryUploadResult> UploadPdfStreamAsync(System.IO.Stream stream, string fileName);
         Task<bool> DeleteFileAsync(string publicId);
     }
 }

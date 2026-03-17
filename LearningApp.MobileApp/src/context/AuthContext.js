@@ -51,8 +51,8 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const res = await loginApi({ email, password });
-        const { token, name, email: userEmail, phone, role } = res.data;
-        const userData = { name, email: userEmail, phone, role };
+        const { token, name, email: userEmail, phone, role, avatarUrl } = res.data;
+        const userData = { name, email: userEmail, phone, role, avatarUrl };
 
         await AsyncStorage.setItem('token', token);
         await AsyncStorage.setItem('user', JSON.stringify(userData));
@@ -63,8 +63,8 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password, phone, verifiedToken) => {
         const res = await registerApi({ name, email, password, phone, otp: verifiedToken });
-        const { token, name: n, email: e, phone: ph, role } = res.data;
-        const userData = { name: n, email: e, phone: ph, role };
+        const { token, name: n, email: e, phone: ph, role, avatarUrl } = res.data;
+        const userData = { name: n, email: e, phone: ph, role, avatarUrl };
 
         await AsyncStorage.setItem('token', token);
         await AsyncStorage.setItem('user', JSON.stringify(userData));
@@ -73,13 +73,19 @@ export const AuthProvider = ({ children }) => {
         return userData;
     };
 
+    const updateUser = async (updatedData) => {
+        const newData = { ...user, ...updatedData };
+        await AsyncStorage.setItem('user', JSON.stringify(newData));
+        setUser(newData);
+    };
+
     const logout = clearSession;
 
     const isAdmin = user?.role === 'Admin';
     const isStudent = user?.role === 'Student';
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin, isStudent }}>
+        <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser, isAdmin, isStudent }}>
             {children}
         </AuthContext.Provider>
     );

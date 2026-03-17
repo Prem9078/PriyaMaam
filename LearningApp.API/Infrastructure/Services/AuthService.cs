@@ -7,9 +7,11 @@ using LearningApp.API.Application.DTOs;
 using LearningApp.API.Application.Services;
 using LearningApp.API.Domain.Entities;
 using LearningApp.API.Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.IO;
 
 namespace LearningApp.API.Infrastructure.Services
 {
@@ -18,12 +20,14 @@ namespace LearningApp.API.Infrastructure.Services
         private readonly AppDbContext _db;
         private readonly IConfiguration _config;
         private readonly EmailService _email;
+        private readonly ICloudinaryService _cloudinary;
 
-        public AuthService(AppDbContext db, IConfiguration config, EmailService email)
+        public AuthService(AppDbContext db, IConfiguration config, EmailService email, ICloudinaryService cloudinary)
         {
-            _db     = db;
-            _config = config;
-            _email  = email;
+            _db         = db;
+            _config     = config;
+            _email      = email;
+            _cloudinary = cloudinary;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -38,7 +42,8 @@ namespace LearningApp.API.Infrastructure.Services
                 Email        = dto.Email,
                 Phone        = dto.Phone,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Role         = "Student"
+                Role         = "Student",
+                SessionId    = Guid.NewGuid()
             };
 
             _db.Users.Add(user);
@@ -53,7 +58,8 @@ namespace LearningApp.API.Infrastructure.Services
                 Name  = user.Name,
                 Email = user.Email,
                 Phone = user.Phone,
-                Role  = user.Role
+                Role  = user.Role,
+                AvatarUrl = user.AvatarUrl
             };
         }
 
@@ -64,6 +70,9 @@ namespace LearningApp.API.Infrastructure.Services
 
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Invalid email or password.");
+            
+            user.SessionId = Guid.NewGuid();
+            await _db.SaveChangesAsync();
 
             return new AuthResponseDto
             {
@@ -71,7 +80,8 @@ namespace LearningApp.API.Infrastructure.Services
                 Name  = user.Name,
                 Email = user.Email,
                 Phone = user.Phone,
-                Role  = user.Role
+                Role  = user.Role,
+                AvatarUrl = user.AvatarUrl
             };
         }
 
@@ -87,6 +97,7 @@ namespace LearningApp.API.Infrastructure.Services
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role),
+                new Claim("sessionId", user.SessionId?.ToString() ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -106,12 +117,17 @@ namespace LearningApp.API.Infrastructure.Services
             var user = await _db.Users.FindAsync(userId)
                        ?? throw new UnauthorizedAccessException("User not found.");
 
+            user.SessionId = Guid.NewGuid();
+            await _db.SaveChangesAsync();
+
             return new AuthResponseDto
             {
                 Token = GenerateToken(user),
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Phone = user.Phone,
+                Role = user.Role,
+                AvatarUrl = user.AvatarUrl
             };
         }
 
@@ -134,5 +150,42 @@ namespace LearningApp.API.Infrastructure.Services
 
         public async Task<Domain.Entities.User?> GetUserByIdAsync(Guid userId)
             => await _db.Users.FindAsync(userId);
+
+        public async Task<AuthResponseDto> UpdateProfileAsync(Guid userId, UpdateProfileDto dto)
+        {
+            var user = await _db.Users.FindAsync(userId)
+                ?? throw new UnauthorizedAccessException("User not found.");
+
+            user.Name = dto.Name;
+            user.Phone = dto.Phone;
+
+            await _db.SaveChangesAsync();
+
+            return new AuthResponseDto
+            {
+                Token = GenerateToken(user),
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.Phone,
+                Role = user.Role,
+                AvatarUrl = user.AvatarUrl
+            };
+        }
+
+        public async Task<string> UploadAvatarAsync(Guid userId, IFormFile file)
+        {
+            var user = await _db.Users.FindAsync(userId)
+                ?? throw new UnauthorizedAccessException("User not found.");
+
+            var uploadResult = await _cloudinary.UploadImageAsync(file);
+            if (string.IsNullOrEmpty(uploadResult.SecureUrl))
+                throw new Exception("Failed to upload avatar to Cloudinary.");
+
+            user.AvatarUrl = uploadResult.SecureUrl;
+            
+            await _db.SaveChangesAsync();
+
+            return user.AvatarUrl;
+        }
     }
 }

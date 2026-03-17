@@ -19,6 +19,9 @@ import LessonScreen from '../screens/student/LessonScreen';
 import QuizScreen from '../screens/student/QuizScreen';
 import ResultScreen from '../screens/student/ResultScreen';
 import ProfileScreen from '../screens/student/ProfileScreen';
+import EditProfileScreen from '../screens/student/EditProfileScreen';
+import CertificatesScreen from '../screens/student/CertificatesScreen';
+import NotificationsScreen from '../screens/student/NotificationsScreen';
 import OfflineMaterialsScreen from '../screens/student/OfflineMaterialsScreen';
 import QuizHistoryScreen from '../screens/student/QuizHistoryScreen';
 import LeaderboardScreen from '../screens/student/LeaderboardScreen';
@@ -78,6 +81,8 @@ const StudentTabs = () => (
 const ProfileStack = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="Certificates" component={CertificatesScreen} />
         <Stack.Screen name="OfflineMaterials" component={OfflineMaterialsScreen} />
     </Stack.Navigator>
 );
@@ -86,6 +91,7 @@ const ProfileStack = () => (
 const StudentStack = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="HomeMain" component={HomeScreen} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="CourseDetail" component={CourseDetailScreen} />
         <Stack.Screen name="Lessons" component={LessonsScreen} />
         <Stack.Screen name="Lesson" component={LessonScreen} />
@@ -93,6 +99,7 @@ const StudentStack = () => (
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
         <Stack.Screen name="PdfViewer" component={PdfViewerScreen} />
+        <Stack.Screen name="Certificates" component={CertificatesScreen} />
     </Stack.Navigator>
 );
 
