@@ -37,6 +37,8 @@ export default function QuizScreen({ route, navigation }) {
                 lessonTitle,
                 quizId: quiz.id,
                 quizTitle: quizTitle || lessonTitle,
+                quiz,
+                userAnswers: answers,
             });
         } catch (err) {
             showAlert('Error', err.response?.data?.message || 'Submission failed.');

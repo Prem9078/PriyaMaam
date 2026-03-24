@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Priya Ma'am",
+    "name": "Soham Sir",
     "slug": "learningapp-mobile",
     "owner": "priyamaam",
     "version": "1.0.0",
     "orientation": "portrait",
     "jsEngine": "hermes",
-    "icon": "./assets/AppLogo.png",
+    "icon": "./assets/Logo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/Logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/AppLogo.png"
+        "foregroundImage": "./assets/Logo.png"
       },
       "package": "com.prempandey.LearningApp.Mobile",
       "googleServicesFile": "./google-services.json",

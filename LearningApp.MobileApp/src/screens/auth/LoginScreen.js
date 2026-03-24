@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Platform, StatusBar } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { showAlert } from '../../components/AppAlert';
 
-const LOGO = require('../../../assets/AppLogo.png');
+const LOGO = require('../../../assets/Logo.png');
 const PURPLE = '#4B42D6';
 
 function PasswordInput({ value, onChangeText, placeholder }) {
@@ -50,6 +50,7 @@ export default function LoginScreen({ navigation }) {
 
     return (
         <View style={s.container}>
+            <StatusBar barStyle="dark-content" backgroundColor="#F0F2FF" />
             <KeyboardAwareScrollView
                 contentContainerStyle={s.inner}
                 showsVerticalScrollIndicator={false}
@@ -60,8 +61,8 @@ export default function LoginScreen({ navigation }) {
                 {/* Logo + App Name */}
                 <View style={s.brandRow}>
                     <Image source={LOGO} style={s.logo} resizeMode="contain" />
-                    <Text style={s.appName}>Priya Ma'am</Text>
-                    <Text style={s.appSub}>हिंदी साहित्य सरल भाषा में</Text>
+                    <Text style={s.appName}>Soham Sir</Text>
+                    <Text style={s.appSub}>Learn with Soham Sir</Text>
                 </View>
 
                 {/* Card */}

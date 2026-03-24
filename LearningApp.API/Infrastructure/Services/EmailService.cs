@@ -18,7 +18,7 @@ namespace LearningApp.API.Infrastructure.Services
             var section = _config.GetSection("Email");
             var apiKey = section["Password"]!; // Assuming SendGrid API Key is stored here
             var from = section["From"]!;
-            var display = section["DisplayName"] ?? "Priya Ma'am";
+            var display = section["DisplayName"] ?? "Soham Sir";
 
             // If not SendGrid (e.g., local testing), fallback could be added here
             // But for production on Railway with SendGrid, we use the Web API
@@ -59,20 +59,20 @@ namespace LearningApp.API.Infrastructure.Services
         private static string Wrap(string content) => $@"
 <div style=""font-family:'Segoe UI',sans-serif;max-width:520px;margin:auto;background:#fff;border:1px solid #E0DEFF;border-radius:16px;overflow:hidden"">
   <div style=""background:#4B42D6;padding:24px 32px"">
-    <h2 style=""color:#fff;margin:0;font-size:22px"">Priya Ma'am 📚</h2>
-    <p style=""color:rgba(255,255,255,0.75);margin:4px 0 0;font-size:13px"">हिंदी साहित्य सरल भाषा में</p>
+    <h2 style=""color:#fff;margin:0;font-size:22px"">Soham Sir 📚</h2>
+    <p style=""color:rgba(255,255,255,0.75);margin:4px 0 0;font-size:13px"">Learn with Soham Sir</p>
   </div>
   <div style=""padding:28px 32px"">
     {content}
   </div>
   <div style=""background:#F5F6FF;padding:14px 32px;text-align:center"">
-    <p style=""font-size:11px;color:#aaa;margin:0"">© Priya Ma'am Learning App · Do not reply to this email.</p>
+    <p style=""font-size:11px;color:#aaa;margin:0"">© Soham Sir Learning App · Do not reply to this email.</p>
   </div>
 </div>";
 
         // ─── 1: OTP (existing — kept for compatibility) ───────────────────────
         public Task SendOtpAsync(string toEmail, string otp,
-            string subject = "Verification OTP — Priya Ma'am",
+            string subject = "Verification OTP — Soham Sir",
             string heading = "Email Verification")
         {
             var body = Wrap($@"
@@ -90,7 +90,7 @@ namespace LearningApp.API.Infrastructure.Services
             var body = Wrap($@"
 <h3 style=""color:#1a1a2e;margin-top:0"">Welcome aboard, {name}! 🎉</h3>
 <p style=""color:#444;line-height:1.6"">
-  Your account has been successfully created on <strong>Priya Ma'am</strong> — the best place to learn Hindi Literature easily.
+  Your account has been successfully created on <strong>Soham Sir</strong> — the best place to learn and grow.
 </p>
 <p style=""color:#444;line-height:1.6"">Here's what you can do next:</p>
 <ul style=""color:#555;line-height:1.8"">
@@ -100,7 +100,7 @@ namespace LearningApp.API.Infrastructure.Services
 </ul>
 <p style=""color:#888;font-size:13px"">Happy learning! 🌟</p>");
 
-            return SendAsync(toEmail, "Welcome to Priya Ma'am 📚", body);
+            return SendAsync(toEmail, "Welcome to Soham Sir 📚", body);
         }
 
         // ─── 3: Course enrollment confirmation ───────────────────────────────
@@ -114,7 +114,7 @@ namespace LearningApp.API.Infrastructure.Services
 </div>
 <p style=""color:#444;line-height:1.6"">Head to the app, open the course, and start your first lesson today. Best of luck! 💪</p>");
 
-            return SendAsync(toEmail, $"Enrolled: {courseTitle} — Priya Ma'am", body);
+            return SendAsync(toEmail, $"Enrolled: {courseTitle} — Soham Sir", body);
         }
 
         // ─── 4: Quiz result ───────────────────────────────────────────────────
@@ -152,7 +152,7 @@ namespace LearningApp.API.Infrastructure.Services
 </div>
 <p style=""color:#888;font-size:13px;margin-top:16px"">Open the app to view the leaderboard and see how you compare with other students!</p>");
 
-            return SendAsync(toEmail, $"Quiz Result: {score}/{total} in {quizTitle} — Priya Ma'am", body);
+            return SendAsync(toEmail, $"Quiz Result: {score}/{total} in {quizTitle} — Soham Sir", body);
         }
 
         // ─── 5: New course published (bulk) ──────────────────────────────────
@@ -160,7 +160,7 @@ namespace LearningApp.API.Infrastructure.Services
         {
             var body = Wrap($@"
 <h3 style=""color:#1a1a2e;margin-top:0"">New Course Available! 📚</h3>
-<p style=""color:#444;line-height:1.6"">A new course has just been published on <strong>Priya Ma'am</strong>:</p>
+<p style=""color:#444;line-height:1.6"">A new course has just been published on <strong>Soham Sir</strong>:</p>
 <div style=""background:#F0EFFF;border-left:4px solid #4B42D6;border-radius:8px;padding:14px 18px;margin:16px 0"">
   <strong style=""color:#4B42D6;font-size:16px"">{courseTitle}</strong>
 </div>
@@ -168,7 +168,7 @@ namespace LearningApp.API.Infrastructure.Services
 
             foreach (var email in emails)
             {
-                try { await SendAsync(email, $"New Course: {courseTitle} — Priya Ma'am", body); }
+                try { await SendAsync(email, $"New Course: {courseTitle} — Soham Sir", body); }
                 catch { /* skip failed recipients so others still get the email */ }
             }
         }
@@ -186,7 +186,7 @@ namespace LearningApp.API.Infrastructure.Services
 
             foreach (var email in emails)
             {
-                try { await SendAsync(email, $"New Quiz: {quizTitle} — Priya Ma'am", body); }
+                try { await SendAsync(email, $"New Quiz: {quizTitle} — Soham Sir", body); }
                 catch { /* skip failed recipients */ }
             }
         }
@@ -200,7 +200,7 @@ namespace LearningApp.API.Infrastructure.Services
 <p style=""color:#444;line-height:1.6"">If you did <strong>not</strong> make this change, please contact us immediately and reset your password from the app.</p>
 <p style=""color:#888;font-size:13px"">Stay safe! 🛡️</p>");
 
-            return SendAsync(toEmail, "Password Changed — Priya Ma'am", body);
+            return SendAsync(toEmail, "Password Changed — Soham Sir", body);
         }
         // ─── 8: Certificate Delivery ───────────────────────────────────────────────────
         public Task SendCertificateAsync(string toEmail, string name, string courseTitle, string pdfUrl)
@@ -217,7 +217,7 @@ namespace LearningApp.API.Infrastructure.Services
 </div>
 <p style=""color:#888;font-size:13px"">You can also view all your earned certificates within the Mobile App at any time!</p>");
 
-            return SendAsync(toEmail, $"Your Certificate: {courseTitle} — Priya Ma'am", body);
+            return SendAsync(toEmail, $"Your Certificate: {courseTitle} — Soham Sir", body);
         }
     }
 }

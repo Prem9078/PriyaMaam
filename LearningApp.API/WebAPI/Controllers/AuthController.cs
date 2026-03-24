@@ -120,7 +120,7 @@ namespace LearningApp.API.WebAPI.Controllers
                 var code = _otpStore.Generate("reset:" + dto.Email.ToLower());
                 await _emailService.SendOtpAsync(dto.Email,
                     code,
-                    subject: "Password Reset OTP — Priya Ma'am",
+                    subject: "Password Reset OTP — Soham Sir",
                     heading: "Reset Your Password");
             }
 
@@ -175,7 +175,7 @@ namespace LearningApp.API.WebAPI.Controllers
 
             var code = _otpStore.Generate("change-pw:" + user.Email.ToLower());
             await _emailService.SendOtpAsync(user.Email, code,
-                subject: "Change Password OTP — Priya Ma'am",
+                subject: "Change Password OTP — Soham Sir",
                 heading: "Change Your Password");
 
             return Ok(new { message = "OTP sent to your registered email." });

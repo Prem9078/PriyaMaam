@@ -39,6 +39,7 @@ import EditQuizScreen from '../screens/admin/EditQuizScreen';
 import ManageStudentsScreen from '../screens/admin/ManageStudentsScreen';
 import StudentDetailScreen from '../screens/admin/StudentDetailScreen';
 import SendAnnouncementScreen from '../screens/admin/SendAnnouncementScreen';
+import AdminQuizAnalyticsScreen from '../screens/admin/AdminQuizAnalyticsScreen';
 import PdfViewerScreen from '../screens/PdfViewerScreen';
 
 const Stack = createStackNavigator();
@@ -126,6 +127,7 @@ const AdminStack = () => (
         <Stack.Screen name="ManageStudents" component={ManageStudentsScreen} />
         <Stack.Screen name="StudentDetail" component={StudentDetailScreen} />
         <Stack.Screen name="SendAnnouncement" component={SendAnnouncementScreen} />
+        <Stack.Screen name="AdminQuizAnalytics" component={AdminQuizAnalyticsScreen} />
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
         <Stack.Screen name="PdfViewer" component={PdfViewerScreen} />
     </Stack.Navigator>

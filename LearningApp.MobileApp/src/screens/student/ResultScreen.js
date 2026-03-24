@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ResultScreen({ route, navigation }) {
-    const { result, lessonTitle, quizId, quizTitle } = route.params;
+    const { result, lessonTitle, quizId, quizTitle, quiz, userAnswers } = route.params;
     const { score, totalQuestions, correctAnswers } = result;
     const percentage = Math.round((score / totalQuestions) * 100);
     const passed = percentage >= 60;
@@ -22,15 +22,42 @@ export default function ResultScreen({ route, navigation }) {
             <Text style={styles.lessonName}>{lessonTitle}</Text>
 
             {/* Correct Answers Review */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Correct Answers</Text>
-                {Object.entries(correctAnswers).map(([qId, ans], idx) => (
-                    <View key={qId} style={styles.answerRow}>
-                        <Text style={styles.answerQ}>Question {idx + 1}</Text>
-                        <Text style={styles.answerVal}>{ans}</Text>
-                    </View>
-                ))}
-            </View>
+            {quiz && userAnswers ? (
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Detailed Review</Text>
+                    {quiz.questions.map((q, idx) => {
+                        const correctOpt = correctAnswers[q.id];
+                        const userOpt = userAnswers[q.id];
+                        const isCorrect = correctOpt === userOpt;
+                        return (
+                            <View key={q.id} style={styles.questionReviewCard}>
+                                <Text style={styles.reviewQNum}>Q{idx + 1}.</Text>
+                                <Text style={styles.reviewQText}>{q.questionText}</Text>
+                                <View style={styles.reviewOptions}>
+                                    <Text style={[styles.reviewAnswer, isCorrect ? styles.ansCorrect : styles.ansWrong]}>
+                                        Your Answer: {userOpt ? `${userOpt} - ${q['option'+userOpt]}` : 'None'}
+                                    </Text>
+                                    {!isCorrect && (
+                                        <Text style={[styles.reviewAnswer, styles.ansCorrect, { marginTop: 4 }]}>
+                                            Correct Answer: {correctOpt} - {q['option'+correctOpt]}
+                                        </Text>
+                                    )}
+                                </View>
+                            </View>
+                        );
+                    })}
+                </View>
+            ) : (
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Correct Answers</Text>
+                    {Object.entries(correctAnswers || {}).map(([qId, ans], idx) => (
+                        <View key={qId} style={styles.answerRow}>
+                            <Text style={styles.answerQ}>Question {idx + 1}</Text>
+                            <Text style={styles.answerVal}>{ans}</Text>
+                        </View>
+                    ))}
+                </View>
+            )}
 
             {/* Leaderboard Button */}
             {quizId && (
@@ -72,6 +99,15 @@ const styles = StyleSheet.create({
     },
     answerQ: { fontSize: 14, color: '#555' },
     answerVal: { fontSize: 14, fontWeight: '700', color: '#6C63FF' },
+    questionReviewCard: {
+        paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+    },
+    reviewQNum: { fontSize: 13, color: '#6C63FF', fontWeight: '700', marginBottom: 4 },
+    reviewQText: { fontSize: 14, fontWeight: '600', color: '#1a1a2e', marginBottom: 8, lineHeight: 20 },
+    reviewOptions: { backgroundColor: '#f9f9fb', padding: 10, borderRadius: 8 },
+    reviewAnswer: { fontSize: 13, fontWeight: '600' },
+    ansCorrect: { color: '#27ae60' },
+    ansWrong: { color: '#e74c3c' },
     leaderBtn: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
         width: '100%', borderWidth: 2, borderColor: '#6C63FF', borderRadius: 14,

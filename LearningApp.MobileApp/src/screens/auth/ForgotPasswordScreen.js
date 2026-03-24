@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, Image,
-    StyleSheet, ActivityIndicator, Platform
+    StyleSheet, ActivityIndicator, Platform, StatusBar
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +9,7 @@ import { sendOtp as sendOtpApi, verifyOtp as verifyOtpApi } from '../../services
 import api from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
-const LOGO = require('../../../assets/AppLogo.png');
+const LOGO = require('../../../assets/Logo.png');
 const PURPLE = '#4B42D6';
 
 function PasswordInput({ value, onChangeText, placeholder }) {
@@ -79,13 +79,13 @@ export default function ForgotPasswordScreen({ navigation }) {
         } finally { setLoading(false); }
     };
 
-    // Step 1 — Verify OTP (using the same verify-otp endpoint with a reset: prefix)
+    // Step 1 — Verify OTP
     const handleVerifyOtp = async () => {
         if (otp.length !== 6) return showAlert('Error', 'Enter the 6-digit OTP.');
         setLoading(true);
         try {
             const res = await api.post('/api/auth/verify-reset-otp', { email: email.trim(), otp: otp.trim() });
-            setVerifiedToken(res.data.verifiedToken); // store the token returned by backend
+            setVerifiedToken(res.data.verifiedToken);
             setStep(2);
         } catch (e) {
             showAlert('Invalid OTP', e.response?.data?.message || 'Wrong or expired OTP.');
@@ -100,7 +100,7 @@ export default function ForgotPasswordScreen({ navigation }) {
         try {
             await api.post('/api/auth/reset-password', {
                 email: email.trim(),
-                otp: verifiedToken,   // send the backend-issued verified token
+                otp: verifiedToken,
                 newPassword: password,
             });
             showAlert('✅ Password Reset!', 'Your password has been changed. Please log in.', [
@@ -113,6 +113,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
     return (
         <View style={s.container}>
+            <StatusBar barStyle="dark-content" backgroundColor="#F0F2FF" />
             <KeyboardAwareScrollView
                 contentContainerStyle={s.inner}
                 showsVerticalScrollIndicator={false}
@@ -122,8 +123,8 @@ export default function ForgotPasswordScreen({ navigation }) {
 
                 <View style={s.brandRow}>
                     <Image source={LOGO} style={s.logo} resizeMode="contain" />
-                    <Text style={s.appName}>Priya Ma'am</Text>
-                    <Text style={s.appSub}>हिंदी साहित्य सरल भाषा में</Text>
+                    <Text style={s.appName}>Soham Sir</Text>
+                    <Text style={s.appSub}>Learn with Soham Sir</Text>
                 </View>
 
                 <View style={s.card}>

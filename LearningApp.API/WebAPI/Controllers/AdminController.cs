@@ -62,6 +62,46 @@ namespace LearningApp.API.WebAPI.Controllers
             return Ok(enrollments);
         }
 
+        [HttpGet("students/{userId:guid}/quiz-performance")]
+        public async Task<IActionResult> GetStudentQuizPerformance(Guid userId)
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user == null || user.Role != "Student") return NotFound("Student not found.");
+
+            var results = await _db.Results
+                .Where(r => r.UserId == userId)
+                .Include(r => r.Quiz)
+                    .ThenInclude(q => q.Lesson)
+                        .ThenInclude(l => l.Course)
+                .Include(r => r.Quiz)
+                    .ThenInclude(q => q.Questions)
+                .OrderByDescending(r => r.SubmittedAt)
+                .Select(r => new
+                {
+                    r.Id,
+                    QuizTitle = r.Quiz.Title,
+                    LessonTitle = r.Quiz.Lesson.Title,
+                    CourseTitle = r.Quiz.Lesson.Course.Title,
+                    r.Score,
+                    TotalQuestions = r.Quiz.Questions.Count,
+                    Percentage = r.Quiz.Questions.Count > 0
+                        ? (int)Math.Round((double)r.Score / r.Quiz.Questions.Count * 100)
+                        : 0,
+                    AttemptedAt = r.SubmittedAt
+                })
+                .ToListAsync();
+
+            var summary = new
+            {
+                TotalAttempts = results.Count,
+                AveragePercentage = results.Count > 0 ? (int)Math.Round(results.Average(r => r.Percentage)) : 0,
+                BestPercentage = results.Count > 0 ? results.Max(r => r.Percentage) : 0,
+                Attempts = results
+            };
+
+            return Ok(summary);
+        }
+
         [HttpPost("students/{userId:guid}/enroll/{courseId:guid}")]
         public async Task<IActionResult> EnrollStudent(Guid userId, Guid courseId)
         {

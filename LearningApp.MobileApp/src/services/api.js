@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-//const BASE_URL = 'https://priyamaam-production.up.railway.app';
-export const BASE_URL = 'http://192.168.31.145:5005';
+const BASE_URL = 'https://priyamaam-production.up.railway.app';
+//export const BASE_URL = 'http://192.168.31.145:5005';
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -85,12 +85,27 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // Skip 401 interceptor for login/register endpoints
-        const isAuthEndpoint = originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/register');
+        // Skip 401 interceptor for login/register/notification endpoints
+        // — notifications endpoints are called during login/logout flows and
+        //   must NOT trigger forceLogout (would wipe a freshly-set session)
+        const skipUrls = [
+            '/api/auth/login',
+            '/api/auth/register',
+            '/api/notifications/clear-token',
+            '/api/notifications/register-token',
+        ];
+        const isSkippedEndpoint = skipUrls.some(u => originalRequest.url?.includes(u));
 
-        if (error.response?.status === 401 && !originalRequest._retried && !isAuthEndpoint) {
+        if (error.response?.status === 401 && !originalRequest._retried && !isSkippedEndpoint) {
             originalRequest._retried = true;
+            const tokenAtRequestTime = originalRequest.headers?.Authorization?.replace('Bearer ', '');
             const currentToken = await AsyncStorage.getItem('token');
+
+            // If a fresh login has already stored a NEW token, don't log out
+            if (currentToken && currentToken !== tokenAtRequestTime) {
+                // A new session was established while this request was in-flight — ignore this 401
+                return Promise.reject(error);
+            }
 
             if (currentToken) {
                 const newToken = await refreshToken(currentToken);
@@ -170,6 +185,7 @@ export const getCertificates = () => api.get('/api/certificates');
 export const getAdminStats = () => api.get('/api/admin/dashboard-stats');
 export const getStudents = () => api.get('/api/admin/students');
 export const getStudentEnrollments = (userId) => api.get(`/api/admin/students/${userId}/enrollments`);
+export const getStudentQuizPerformance = (userId) => api.get(`/api/admin/students/${userId}/quiz-performance`);
 export const enrollStudent = (userId, courseId) => api.post(`/api/admin/students/${userId}/enroll/${courseId}`);
 export const revokeStudentEnrollment = (userId, courseId) => api.delete(`/api/admin/students/${userId}/enroll/${courseId}`);
 

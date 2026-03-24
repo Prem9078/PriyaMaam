@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, StatusBar } from 'react-native';
 
-const LOGO = require('../../assets/AppLogo.png');
+const LOGO = require('../../assets/Logo.png');
 
 // Words to reveal one by one
 const WORDS = ['हिंदी', 'साहित्य', 'सरल', 'भाषा', 'में'];

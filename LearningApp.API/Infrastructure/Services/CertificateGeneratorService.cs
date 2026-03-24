@@ -44,7 +44,7 @@ namespace LearningApp.API.Infrastructure.Services
 
                             row.RelativeItem().AlignRight().Column(c =>
                             {
-                                c.Item().AlignCenter().Text("Priya Ma'am").FontFamily("Snell Roundhand").FontSize(30).FontColor("#4B42D6");
+                                c.Item().AlignCenter().Text("Soham Sir").FontFamily("Snell Roundhand").FontSize(30).FontColor("#4B42D6");
                                 c.Item().AlignCenter().Text("Course Instructor").FontSize(18);
                             });
                         });

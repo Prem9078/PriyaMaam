@@ -63,6 +63,12 @@ export default function AdminDashboard({ navigation }) {
                     <View><Text style={s.actionTitle}>Global Announcement</Text><Text style={s.actionSub}>Send a push notification to all users</Text></View>
                     <Text style={s.actionArrow}>›</Text>
                 </TouchableOpacity>
+                <Text style={[s.sectionTitle, { marginTop: 10 }]}>Analytics</Text>
+                <TouchableOpacity style={s.actionCard} onPress={() => navigation.navigate('AdminQuizAnalytics')}>
+                    <Text style={s.actionIcon}>📊</Text>
+                    <View><Text style={s.actionTitle}>Quiz Analytics</Text><Text style={s.actionSub}>Browse quizzes & view leaderboards per course</Text></View>
+                    <Text style={s.actionArrow}>›</Text>
+                </TouchableOpacity>
             </View>
         </ScrollView>
     );

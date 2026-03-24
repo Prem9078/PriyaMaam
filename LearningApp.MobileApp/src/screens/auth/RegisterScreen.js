@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, Image,
-    StyleSheet, ActivityIndicator, Platform
+    StyleSheet, ActivityIndicator, Platform, StatusBar
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { sendOtp as sendOtpApi, verifyOtp as verifyOtpApi } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
 
-const LOGO = require('../../../assets/AppLogo.png');
+const LOGO = require('../../../assets/Logo.png');
 const PURPLE = '#4B42D6';
 
 function PasswordInput({ value, onChangeText, placeholder }) {
@@ -88,14 +88,8 @@ export default function RegisterScreen({ navigation }) {
                     'Email Already Registered',
                     'An account with this email already exists.\n\nWhat would you like to do?',
                     [
-                        {
-                            text: 'Sign In',
-                            onPress: () => navigation.navigate('Login'),
-                        },
-                        {
-                            text: 'Reset Password',
-                            onPress: () => navigation.navigate('ForgotPassword'),
-                        },
+                        { text: 'Sign In', onPress: () => navigation.navigate('Login') },
+                        { text: 'Reset Password', onPress: () => navigation.navigate('ForgotPassword') },
                         { text: 'Cancel', style: 'cancel' },
                     ]
                 );
@@ -152,6 +146,7 @@ export default function RegisterScreen({ navigation }) {
 
     return (
         <View style={s.container}>
+            <StatusBar barStyle="dark-content" backgroundColor="#F0F2FF" />
             <KeyboardAwareScrollView
                 contentContainerStyle={s.inner}
                 showsVerticalScrollIndicator={false}
@@ -162,8 +157,8 @@ export default function RegisterScreen({ navigation }) {
                 {/* Logo + App Name */}
                 <View style={s.brandRow}>
                     <Image source={LOGO} style={s.logo} resizeMode="contain" />
-                    <Text style={s.appName}>Priya Ma'am</Text>
-                    <Text style={s.appSub}>हिंदी साहित्य सरल भाषा में</Text>
+                    <Text style={s.appName}>Soham Sir</Text>
+                    <Text style={s.appSub}>Learn with Soham Sir</Text>
                 </View>
 
                 {/* Card */}

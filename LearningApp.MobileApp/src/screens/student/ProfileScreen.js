@@ -268,7 +268,7 @@ export default function ProfileScreen({ navigation }) {
                     <Text style={s.logoutText}>Logout</Text>
                 </TouchableOpacity>
 
-                <Text style={s.version}>Priya Ma'am v1.0.0</Text>
+                <Text style={s.version}>Soham Sir v1.0.0</Text>
             </View>
 
             <ChangePasswordModal

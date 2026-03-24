@@ -112,7 +112,7 @@ export default function HomeScreen({ navigation }) {
             {/* ─── Branded Header ─── */}
             <View style={s.header}>
                 <View>
-                    <Text style={s.appName}>Priya Ma'am</Text>
+                    <Text style={s.appName}>Soham Sir</Text>
                     <Text style={s.greeting}>Welcome back, {user?.name?.split(' ')[0]} 👋</Text>
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={s.bellBtn}>
