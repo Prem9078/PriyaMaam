@@ -114,8 +114,7 @@ export default function LessonScreen({ route, navigation }) {
             const res = await postLessonComment(lesson.id, newComment);
             setComments([res.data, ...comments]); // add to top
             setNewComment('');
-        } catch (e) {
-            console.log('Error posting comment:', e);
+        } catch {
         } finally {
             setPosting(false);
         }

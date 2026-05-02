@@ -1,24 +1,43 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'https://priyamaam-production.up.railway.app';
-//export const BASE_URL = 'http://192.168.31.145:5005';
+//const BASE_URL = 'https://p01--soham-sir--jzlk2868lbzn.code.run';
+export const BASE_URL = 'http://192.168.31.145:5005';
 
 const api = axios.create({
     baseURL: BASE_URL,
+    timeout: 15000, // 15 seconds — prevent hung requests from freezing the UI
     headers: { 'Content-Type': 'application/json' },
 });
 
 // ─── Logout callback (set by AuthContext) ─────────────────────────────────────
-// This lets api.js trigger logout without importing React context
 let _logoutCallback = null;
 export const setLogoutCallback = (fn) => { _logoutCallback = fn; };
 
 const forceLogout = async () => {
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('last_active_at');
     if (_logoutCallback) _logoutCallback();
 };
+
+// ─── 7-Day Inactivity Tracking ────────────────────────────────────────────────
+export const LAST_ACTIVE_KEY = 'last_active_at';
+export const INACTIVITY_DAYS = 7;
+
+/** Touch the last-active timestamp — called on every successful API response */
+export async function updateLastActive() {
+    await AsyncStorage.setItem(LAST_ACTIVE_KEY, Date.now().toString());
+}
+
+/** Returns true if the user has been inactive for more than INACTIVITY_DAYS */
+export async function isInactivityExpired() {
+    const raw = await AsyncStorage.getItem(LAST_ACTIVE_KEY);
+    if (!raw) return false; // no record yet — don't force logout on first install
+    const lastActive = parseInt(raw, 10);
+    const diffDays = (Date.now() - lastActive) / (1000 * 60 * 60 * 24);
+    return diffDays > INACTIVITY_DAYS;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -79,9 +98,13 @@ api.interceptors.request.use(async (config) => {
     return config;
 });
 
-// ─── Response Interceptor — on 401, try refresh once then force logout ────────
+// ─── Response Interceptor — touch inactivity timer + handle 401 ──────────────
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Every successful API call = user is active → refresh the 7-day timer
+        updateLastActive();
+        return response;
+    },
     async (error) => {
         const originalRequest = error.config;
 
@@ -145,6 +168,10 @@ export const updateCourse = (id, formData) => api.put(`/api/courses/${id}`, form
 });
 export const deleteCourse = (id) => api.delete(`/api/courses/${id}`);
 export const toggleCourseFree = (id) => api.patch(`/api/courses/${id}/toggle-free`);
+
+// ─── Payment (Razorpay) ───────────────────────────────────────────────────────
+export const createPaymentOrder = (courseId) => api.post('/api/payment/create-order', { courseId });
+export const verifyPayment = (data) => api.post('/api/payment/verify', data);
 
 // ─── Lessons ─────────────────────────────────────────────────────────────────
 export const getLessons = (courseId) => api.get(`/api/lessons/${courseId}`);

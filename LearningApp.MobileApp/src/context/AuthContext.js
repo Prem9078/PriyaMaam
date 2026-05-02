@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { login as loginApi, register as registerApi, setLogoutCallback, isTokenExpired } from '../services/api';
+import { login as loginApi, register as registerApi, setLogoutCallback, isTokenExpired, isInactivityExpired, updateLastActive } from '../services/api';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
@@ -17,11 +17,12 @@ export const AuthProvider = ({ children }) => {
 
         await AsyncStorage.removeItem('token');
         await AsyncStorage.removeItem('user');
+        await AsyncStorage.removeItem('last_active_at'); // clear inactivity timer
         setToken(null);
         setUser(null);
     };
 
-    // Load saved session on app start — and immediately log out if token expired
+    // Load saved session on app start — check token expiry AND 7-day inactivity
     useEffect(() => {
         const loadSession = async () => {
             try {
@@ -29,16 +30,22 @@ export const AuthProvider = ({ children }) => {
                 const savedUser = await AsyncStorage.getItem('user');
 
                 if (savedToken && savedUser) {
+                    // Check JWT expiry
                     if (isTokenExpired(savedToken)) {
-                        // Token has fully expired while app was closed → force login
                         await clearSession();
-                    } else {
-                        setToken(savedToken);
-                        setUser(JSON.parse(savedUser));
+                        return;
                     }
+
+                    // Check 7-day inactivity — if user hasn't opened app in 7 days, log out
+                    if (await isInactivityExpired()) {
+                        await clearSession();
+                        return;
+                    }
+
+                    setToken(savedToken);
+                    setUser(JSON.parse(savedUser));
                 }
-            } catch (e) {
-                console.log('Session load error:', e);
+            } catch {
             } finally {
                 setLoading(false);
             }
@@ -56,6 +63,7 @@ export const AuthProvider = ({ children }) => {
 
         await AsyncStorage.setItem('token', token);
         await AsyncStorage.setItem('user', JSON.stringify(userData));
+        await updateLastActive(); // stamp activity time on fresh login
         setToken(token);
         setUser(userData);
         return userData;
@@ -68,6 +76,7 @@ export const AuthProvider = ({ children }) => {
 
         await AsyncStorage.setItem('token', token);
         await AsyncStorage.setItem('user', JSON.stringify(userData));
+        await updateLastActive(); // stamp activity time on fresh registration
         setToken(token);
         setUser(userData);
         return userData;

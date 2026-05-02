@@ -69,10 +69,11 @@ export default function EditCourseScreen({ route, navigation }) {
             </View>
 
             <KeyboardAwareScrollView
-                contentContainerStyle={{ padding: 20 }}
+                contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
                 showsVerticalScrollIndicator={false}
                 enableOnAndroid={true}
-                extraScrollHeight={20}
+                extraScrollHeight={Platform.OS === 'android' ? 120 : 20}
+                keyboardShouldPersistTaps="handled"
             >
 
                 {/* Thumbnail */}

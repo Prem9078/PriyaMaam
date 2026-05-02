@@ -25,6 +25,7 @@ import NotificationsScreen from '../screens/student/NotificationsScreen';
 import OfflineMaterialsScreen from '../screens/student/OfflineMaterialsScreen';
 import QuizHistoryScreen from '../screens/student/QuizHistoryScreen';
 import LeaderboardScreen from '../screens/student/LeaderboardScreen';
+import RazorpayPaymentScreen from '../screens/student/RazorpayPaymentScreen';
 
 // Admin Screens
 import AdminDashboard from '../screens/admin/AdminDashboard';
@@ -101,6 +102,7 @@ const StudentStack = () => (
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
         <Stack.Screen name="PdfViewer" component={PdfViewerScreen} />
         <Stack.Screen name="Certificates" component={CertificatesScreen} />
+        <Stack.Screen name="RazorpayPayment" component={RazorpayPaymentScreen} />
     </Stack.Navigator>
 );
 

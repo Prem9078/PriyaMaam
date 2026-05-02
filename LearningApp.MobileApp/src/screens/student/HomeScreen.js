@@ -19,8 +19,7 @@ export default function HomeScreen({ navigation }) {
         try {
             const res = await getCourses();
             setCourses(res.data);
-        } catch (e) {
-            console.log('Fetch courses error:', e);
+        } catch {
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -32,8 +31,7 @@ export default function HomeScreen({ navigation }) {
             const res = await getNotifications();
             const unread = res.data.filter(n => !n.isRead).length;
             setUnreadCount(unread);
-        } catch (e) {
-            console.log('Fetch notifications error:', e);
+        } catch {
         }
     };
 
@@ -140,10 +138,14 @@ export default function HomeScreen({ navigation }) {
                 keyExtractor={item => item.id}
                 renderItem={renderCourse}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+                removeClippedSubviews={true}
+                windowSize={5}
+                initialNumToRender={6}
+                maxToRenderPerBatch={8}
                 ListHeaderComponent={
-                    // Find the first enrolled course with a last accessed lesson that is NOT 100% complete
-                    courses.find(c => c.isEnrolled && c.lastAccessedLessonId && c.progressPercentage < 100) ? (() => {
+                    (() => {
                         const target = courses.find(c => c.isEnrolled && c.lastAccessedLessonId && c.progressPercentage < 100);
+                        if (!target) return null;
                         return (
                             <TouchableOpacity 
                                 style={s.resumeCard}
@@ -165,7 +167,7 @@ export default function HomeScreen({ navigation }) {
                                 <Text style={s.resumeArrow}>›</Text>
                             </TouchableOpacity>
                         );
-                    })() : null
+                    })()
                 }
                 refreshControl={
                     <RefreshControl

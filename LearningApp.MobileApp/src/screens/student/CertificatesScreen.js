@@ -18,8 +18,7 @@ export default function CertificatesScreen({ navigation }) {
         try {
             const res = await getCertificates();
             setCerts(res.data);
-        } catch (e) {
-            console.log(e);
+        } catch {
         } finally {
             setLoading(false);
             setRefreshing(false);

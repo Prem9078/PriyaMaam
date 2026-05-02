@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
     View, Text, TouchableOpacity, StyleSheet,
     Image, ScrollView, ActivityIndicator,
 } from 'react-native';
-import { enrollCourse, getCourse } from '../../services/api';
+import { enrollCourse, getCourse, createPaymentOrder } from '../../services/api';
 import { showAlert } from '../../components/AppAlert';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CourseDetailScreen({ route, navigation }) {
     const { course } = route.params;
@@ -13,35 +15,65 @@ export default function CourseDetailScreen({ route, navigation }) {
     const [progress, setProgress] = useState(course.progressPercentage ?? 0);
     const [lastAccessedLessonId, setLastAccessedLessonId] = useState(course.lastAccessedLessonId);
 
-    // Fetch fresh course dat on mount
-    useEffect(() => {
-        getCourse(course.id)
-            .then(res => {
-                setEnrolled(res.data.isEnrolled ?? false);
-                setProgress(res.data.progressPercentage ?? 0);
-                setLastAccessedLessonId(res.data.lastAccessedLessonId);
-            })
-            .catch(() => { }); // silently ignore — fallback to nav-param value
-    }, [course.id]);
+    // Refetch course data every time screen comes into focus (handles return from payment)
+    useFocusEffect(
+        useCallback(() => {
+            getCourse(course.id)
+                .then(res => {
+                    setEnrolled(res.data.isEnrolled ?? false);
+                    setProgress(res.data.progressPercentage ?? 0);
+                    setLastAccessedLessonId(res.data.lastAccessedLessonId);
+                })
+                .catch(() => { });
+        }, [course.id])
+    );
 
-    const handleEnroll = async () => {
+    // ── Free course: direct enroll ────────────────────────────────────────────
+    const handleFreeEnroll = async () => {
         setLoading(true);
         try {
             await enrollCourse(course.id);
             setEnrolled(true);
             showAlert('🎉 Enrolled!', `You are now enrolled in "${course.title}"`);
         } catch (err) {
-            // 409 = already enrolled — just update the UI silently
-            if (err.response?.status === 409) {
-                setEnrolled(true);
-                return;
-            }
+            if (err.response?.status === 409) { setEnrolled(true); return; }
             const msg = err.response?.data?.message || 'Enrollment failed.';
             showAlert('Error', msg);
         } finally {
             setLoading(false);
         }
     };
+
+    // ── Paid course: open Razorpay checkout ───────────────────────────────────
+    const handlePaidEnroll = async () => {
+        setLoading(true);
+        try {
+            const res = await createPaymentOrder(course.id);
+            const order = res.data;
+
+            // Read user info from storage to prefill Razorpay form
+            const userRaw = await AsyncStorage.getItem('user');
+            const user = userRaw ? JSON.parse(userRaw) : {};
+
+            navigation.navigate('RazorpayPayment', {
+                order,
+                courseId: course.id,
+                userEmail: user.email || '',
+                userName: user.name || '',
+            });
+        } catch (err) {
+            const status = err.response?.status;
+            const msg = err.response?.data?.message
+                || err.response?.data
+                || err.message
+                || 'Could not initiate payment.';
+            showAlert(`Payment Error (${status || 'Network'})`, String(msg));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEnroll = course.isFree ? handleFreeEnroll : handlePaidEnroll;
 
     return (
         <ScrollView style={styles.container}>
@@ -97,18 +129,23 @@ export default function CourseDetailScreen({ route, navigation }) {
 
                         {/* If they have a last accessed lesson, show Resume button */}
                         {lastAccessedLessonId ? (
-                             <TouchableOpacity style={styles.btnResume}
-                                 onPress={() => navigation.navigate('Lesson', { 
-                                     lessonId: lastAccessedLessonId, 
-                                     courseTitle: course.title 
-                                 })}>
-                                 <Text style={styles.btnTextResume}>↺ Resume Video</Text>
-                             </TouchableOpacity>
+                            <TouchableOpacity style={styles.btnResume}
+                                onPress={() => navigation.navigate('Lesson', {
+                                    lessonId: lastAccessedLessonId,
+                                    courseTitle: course.title
+                                })}>
+                                <Text style={styles.btnTextResume}>↺ Resume Video</Text>
+                            </TouchableOpacity>
                         ) : null}
                     </View>
                 ) : (
                     <TouchableOpacity style={styles.btnEnroll} onPress={handleEnroll} disabled={loading}>
-                        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Enroll Now</Text>}
+                        {loading
+                            ? <ActivityIndicator color="#fff" />
+                            : <Text style={styles.btnText}>
+                                {course.isFree ? 'Enroll Now — Free' : `Pay ₹${course.price?.toFixed(0)} & Enroll`}
+                            </Text>
+                        }
                     </TouchableOpacity>
                 )}
             </View>

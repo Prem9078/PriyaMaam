@@ -30,18 +30,15 @@ export async function registerForPushNotifications() {
     const Notifications = getNotifications();
 
     if (!Notifications) {
-        console.log('[Notifications] Skipped — module not available (Expo Go).');
         return null;
     }
 
     try {
         // Must be a real device — emulators can't receive push notifications
         if (!Device.isDevice) {
-            console.log('[Notifications] Skipped — not a real device.');
             return null;
         }
 
-        console.log('[Notifications] Requesting permission...');
 
         // Request permission
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -53,11 +50,9 @@ export async function registerForPushNotifications() {
         }
 
         if (finalStatus !== 'granted') {
-            console.log('[Notifications] Permission denied.');
             return null;
         }
 
-        console.log('[Notifications] Permission granted. Getting token...');
 
         // Android requires a notification channel
         if (Platform.OS === 'android') {
@@ -79,14 +74,11 @@ export async function registerForPushNotifications() {
             return null;
         }
 
-        // Get the Expo Push Token
         const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
-        console.log('[Notifications] Push Token:', token);
 
         // Save token to our .NET API
         try {
             await api.post('/api/notifications/register-token', { token });
-            console.log('[Notifications] Token registered with API successfully.');
         } catch (err) {
             console.warn('[Notifications] Failed to register token with API:', err?.response?.status, err?.message);
         }
@@ -119,15 +111,11 @@ export function setupNotificationListeners(navigationRef) {
         }),
     });
 
-    // Listener 1: notification received while app is OPEN (foreground)
-    const receivedListener = Notifications.addNotificationReceivedListener((notification) => {
-        console.log('[Notifications] Received in foreground:', notification.request.content.title);
+    const receivedListener = Notifications.addNotificationReceivedListener((_notification) => {
     });
 
-    // Listener 2: user TAPPED a notification (from background or closed state)
     const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
         const data = response.notification.request.content.data;
-        console.log('[Notifications] Tapped, data:', data);
 
         // Deep link: navigate to the screen specified in notification data
         if (navigationRef?.isReady() && data?.screen) {

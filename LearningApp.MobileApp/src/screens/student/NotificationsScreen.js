@@ -18,8 +18,7 @@ export default function NotificationsScreen({ navigation }) {
         try {
             const res = await getNotifications();
             setNotifications(res.data);
-        } catch (e) {
-            console.log(e);
+        } catch {
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -32,8 +31,7 @@ export default function NotificationsScreen({ navigation }) {
         try {
             await markNotificationRead(id);
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-        } catch (e) {
-            console.log(e);
+        } catch {
         }
     };
 
@@ -41,8 +39,7 @@ export default function NotificationsScreen({ navigation }) {
         try {
             await markAllNotificationsRead();
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-        } catch (e) {
-            console.log(e);
+        } catch {
         }
     };
 
@@ -112,6 +109,9 @@ export default function NotificationsScreen({ navigation }) {
                     renderItem={renderItem}
                     ListEmptyComponent={renderEmpty}
                     contentContainerStyle={s.listContent}
+                    removeClippedSubviews={true}
+                    windowSize={7}
+                    initialNumToRender={10}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadNotifications(); }} />
                     }

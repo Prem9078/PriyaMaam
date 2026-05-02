@@ -59,9 +59,11 @@ export default function AddCourseScreen({ navigation }) {
                 <View style={{ width: 50 }} />
             </View>
             <KeyboardAwareScrollView
-                contentContainerStyle={{ padding: 20 }}
+                contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
                 enableOnAndroid={true}
-                extraScrollHeight={20}
+                extraScrollHeight={Platform.OS === 'android' ? 120 : 20}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
             >
                 <Text style={s.label}>Course Title *</Text>
                 <TextInput style={s.input} placeholder="e.g. Complete C# Course" value={title} onChangeText={setTitle} />
